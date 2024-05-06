@@ -1,0 +1,14 @@
+platform:ios,'9.0'
+#use_frameworks!
+
+target 'Example' do
+  
+  pod 'libextobjc', '~> 0.6'
+  pod 'AFNetworking', '~> 4.0.1'
+  pod 'CocoaLumberjack', '~> 3.7.4'
+  pod 'CCDAudio', :path => '../CCDAudio.podspec', :subspecs => ['Core', 'UIKit']
+  pod 'Masonry', '~> 1.1.0'
+
+end
+
+

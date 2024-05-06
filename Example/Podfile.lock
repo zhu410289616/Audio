@@ -1,0 +1,92 @@
+PODS:
+  - AFNetworking (4.0.1):
+    - AFNetworking/NSURLSession (= 4.0.1)
+    - AFNetworking/Reachability (= 4.0.1)
+    - AFNetworking/Security (= 4.0.1)
+    - AFNetworking/Serialization (= 4.0.1)
+    - AFNetworking/UIKit (= 4.0.1)
+  - AFNetworking/NSURLSession (4.0.1):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/Reachability (4.0.1)
+  - AFNetworking/Security (4.0.1)
+  - AFNetworking/Serialization (4.0.1)
+  - AFNetworking/UIKit (4.0.1):
+    - AFNetworking/NSURLSession
+  - CCDAudio/Core (0.0.1):
+    - libextobjc/EXTScope
+  - CCDAudio/UIKit (0.0.1):
+    - MarqueeLabel-ObjC
+  - CocoaLumberjack (3.7.4):
+    - CocoaLumberjack/Core (= 3.7.4)
+  - CocoaLumberjack/Core (3.7.4)
+  - libextobjc (0.6):
+    - libextobjc/EXTADT (= 0.6)
+    - libextobjc/EXTConcreteProtocol (= 0.6)
+    - libextobjc/EXTKeyPathCoding (= 0.6)
+    - libextobjc/EXTNil (= 0.6)
+    - libextobjc/EXTSafeCategory (= 0.6)
+    - libextobjc/EXTScope (= 0.6)
+    - libextobjc/EXTSelectorChecking (= 0.6)
+    - libextobjc/EXTSynthesize (= 0.6)
+    - "libextobjc/NSInvocation+EXT (= 0.6)"
+    - "libextobjc/NSMethodSignature+EXT (= 0.6)"
+    - libextobjc/RuntimeExtensions (= 0.6)
+    - libextobjc/UmbrellaHeader (= 0.6)
+  - libextobjc/EXTADT (0.6):
+    - libextobjc/RuntimeExtensions
+  - libextobjc/EXTConcreteProtocol (0.6):
+    - libextobjc/RuntimeExtensions
+  - libextobjc/EXTKeyPathCoding (0.6):
+    - libextobjc/RuntimeExtensions
+  - libextobjc/EXTNil (0.6):
+    - libextobjc/RuntimeExtensions
+  - libextobjc/EXTSafeCategory (0.6):
+    - libextobjc/RuntimeExtensions
+  - libextobjc/EXTScope (0.6):
+    - libextobjc/RuntimeExtensions
+  - libextobjc/EXTSelectorChecking (0.6):
+    - libextobjc/RuntimeExtensions
+  - libextobjc/EXTSynthesize (0.6):
+    - libextobjc/RuntimeExtensions
+  - "libextobjc/NSInvocation+EXT (0.6)":
+    - libextobjc/RuntimeExtensions
+  - "libextobjc/NSMethodSignature+EXT (0.6)":
+    - libextobjc/RuntimeExtensions
+  - libextobjc/RuntimeExtensions (0.6)
+  - libextobjc/UmbrellaHeader (0.6)
+  - MarqueeLabel-ObjC (3.3.0)
+  - Masonry (1.1.0)
+
+DEPENDENCIES:
+  - AFNetworking (~> 4.0.1)
+  - CCDAudio/Core (from `../CCDAudio.podspec`)
+  - CCDAudio/UIKit (from `../CCDAudio.podspec`)
+  - CocoaLumberjack (~> 3.7.4)
+  - libextobjc (~> 0.6)
+  - Masonry (~> 1.1.0)
+
+SPEC REPOS:
+  trunk:
+    - AFNetworking
+    - CocoaLumberjack
+    - libextobjc
+    - MarqueeLabel-ObjC
+    - Masonry
+
+EXTERNAL SOURCES:
+  CCDAudio:
+    :path: "../CCDAudio.podspec"
+
+SPEC CHECKSUMS:
+  AFNetworking: 3bd23d814e976cd148d7d44c3ab78017b744cd58
+  CCDAudio: b2506bcf4fc2d5fa9108eb1dd04b914412f711f4
+  CocoaLumberjack: 543c79c114dadc3b1aba95641d8738b06b05b646
+  libextobjc: aed8b7d2b07f511c1a7ecaacb33ea03e327c69b7
+  MarqueeLabel-ObjC: 696eaa82e4fcc7fb53e4fdf37ac138f03bf022d6
+  Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
+
+PODFILE CHECKSUM: b91cb64f1dc970eb24887411b7d135c3557002f9
+
+COCOAPODS: 1.11.3
