@@ -1,0 +1,31 @@
+//
+//  PrefixHeader.pch
+//  Example
+//
+//  Created by 十年之前 on 2024/5/7.
+//
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+/**
+ * 第三方静态库可能是C、OC、C++ 文件混编，而pch里面自加的头文件是全局性的，
+ * 当在C文件或者C++文件遇到import时就会出问题，因此需要与Objc分开编译。
+ * 解决方法：
+ * 找到 pch 文件，如下所示将<Foundation/Foundation.h>等包裹住即可解决。
+ */
+#ifdef __OBJC__
+
+#import <Foundation/Foundation.h>
+
+#import <libextobjc/extobjc.h>
+#import <libextobjc/EXTScope.h>
+#import <CCDBucket/CCDBucket.h>
+#import <Masonry/Masonry.h>
+
+#endif
+
+#endif /* PrefixHeader_pch */

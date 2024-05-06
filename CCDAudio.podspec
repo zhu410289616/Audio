@@ -38,7 +38,7 @@ Pod::Spec.new do |spec|
 
   spec.subspec "Core" do |cs|
     cs.source_files = "Pod/Core/**/*.{h,m,mm}"
-    cs.vendored_libraries = 'Pod/Frameworks/**/*.a'
+    cs.vendored_libraries = 'Pod/Core/Frameworks/**/*.a'
     cs.dependency "libextobjc/EXTScope"
   end
   

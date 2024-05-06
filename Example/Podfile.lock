@@ -18,6 +18,12 @@ PODS:
     - libextobjc/EXTScope
   - CCDAudio/UIKit (0.0.1):
     - MarqueeLabel-ObjC
+  - CCDBucket (0.0.2):
+    - CCDBucket/Core (= 0.0.2)
+    - CCDBucket/UIKit (= 0.0.2)
+  - CCDBucket/Core (0.0.2):
+    - CocoaLumberjack
+  - CCDBucket/UIKit (0.0.2)
   - CocoaLumberjack (3.7.4):
     - CocoaLumberjack/Core (= 3.7.4)
   - CocoaLumberjack/Core (3.7.4)
@@ -63,6 +69,7 @@ DEPENDENCIES:
   - AFNetworking (~> 4.0.1)
   - CCDAudio/Core (from `../CCDAudio.podspec`)
   - CCDAudio/UIKit (from `../CCDAudio.podspec`)
+  - CCDBucket (from `https://github.com/zhu410289616/Bucket.git`, tag `202307242341`)
   - CocoaLumberjack (~> 3.7.4)
   - libextobjc (~> 0.6)
   - Masonry (~> 1.1.0)
@@ -78,15 +85,24 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   CCDAudio:
     :path: "../CCDAudio.podspec"
+  CCDBucket:
+    :git: https://github.com/zhu410289616/Bucket.git
+    :tag: '202307242341'
+
+CHECKOUT OPTIONS:
+  CCDBucket:
+    :git: https://github.com/zhu410289616/Bucket.git
+    :tag: '202307242341'
 
 SPEC CHECKSUMS:
   AFNetworking: 3bd23d814e976cd148d7d44c3ab78017b744cd58
-  CCDAudio: b2506bcf4fc2d5fa9108eb1dd04b914412f711f4
+  CCDAudio: ad75fcfab59cec5eccea17a5d4c313f9f2923be4
+  CCDBucket: 59258c899b0e0183e2a1769d5389b6242fb7ea3c
   CocoaLumberjack: 543c79c114dadc3b1aba95641d8738b06b05b646
   libextobjc: aed8b7d2b07f511c1a7ecaacb33ea03e327c69b7
   MarqueeLabel-ObjC: 696eaa82e4fcc7fb53e4fdf37ac138f03bf022d6
   Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
 
-PODFILE CHECKSUM: b91cb64f1dc970eb24887411b7d135c3557002f9
+PODFILE CHECKSUM: 7ee164a0a3a70113ce9c32a205fdee9dc0c1d626
 
 COCOAPODS: 1.11.3
