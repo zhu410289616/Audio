@@ -14,8 +14,7 @@
 		07DF0A652BE92D41005DAA3A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 07DF0A642BE92D41005DAA3A /* Assets.xcassets */; };
 		07DF0A682BE92D41005DAA3A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 07DF0A662BE92D41005DAA3A /* LaunchScreen.storyboard */; };
 		07DF0A6B2BE92D41005DAA3A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 07DF0A6A2BE92D41005DAA3A /* main.m */; };
-		07DF0A742BE93C40005DAA3A /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07DF0A732BE93C40005DAA3A /* AudioToolbox.framework */; };
-		07DF0A762BE93C9D005DAA3A /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 07DF0A752BE93C9D005DAA3A /* libc++.tbd */; };
+		07DF0A792BEA7DA7005DAA3A /* CCDRecorderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 07DF0A772BEA7DA6005DAA3A /* CCDRecorderView.m */; };
 		E78CE40E987A0927B66110A1 /* libPods-Example.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BFA1117F1405088D9594553 /* libPods-Example.a */; };
 /* End PBXBuildFile section */
 
@@ -33,8 +32,8 @@
 		07DF0A692BE92D41005DAA3A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		07DF0A6A2BE92D41005DAA3A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		07DF0A722BE93BA4005DAA3A /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
-		07DF0A732BE93C40005DAA3A /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
-		07DF0A752BE93C9D005DAA3A /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		07DF0A772BEA7DA6005DAA3A /* CCDRecorderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCDRecorderView.m; sourceTree = "<group>"; };
+		07DF0A782BEA7DA6005DAA3A /* CCDRecorderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCDRecorderView.h; sourceTree = "<group>"; };
 		78716D96D1453C0E770D8587 /* Pods-Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Example.release.xcconfig"; path = "Target Support Files/Pods-Example/Pods-Example.release.xcconfig"; sourceTree = "<group>"; };
 		9BFA1117F1405088D9594553 /* libPods-Example.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Example.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F6C4A6191D1A85D7E50E45AF /* Pods-Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Example.debug.xcconfig"; path = "Target Support Files/Pods-Example/Pods-Example.debug.xcconfig"; sourceTree = "<group>"; };
@@ -45,8 +44,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				07DF0A762BE93C9D005DAA3A /* libc++.tbd in Frameworks */,
-				07DF0A742BE93C40005DAA3A /* AudioToolbox.framework in Frameworks */,
 				E78CE40E987A0927B66110A1 /* libPods-Example.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -77,6 +74,8 @@
 			children = (
 				07DF0A582BE92D3B005DAA3A /* AppDelegate.h */,
 				07DF0A592BE92D3B005DAA3A /* AppDelegate.m */,
+				07DF0A782BEA7DA6005DAA3A /* CCDRecorderView.h */,
+				07DF0A772BEA7DA6005DAA3A /* CCDRecorderView.m */,
 				07DF0A5B2BE92D3B005DAA3A /* SceneDelegate.h */,
 				07DF0A5C2BE92D3B005DAA3A /* SceneDelegate.m */,
 				07DF0A5E2BE92D3B005DAA3A /* ViewController.h */,
@@ -103,8 +102,6 @@
 		EEF4FFF31347691E79A91A6A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				07DF0A752BE93C9D005DAA3A /* libc++.tbd */,
-				07DF0A732BE93C40005DAA3A /* AudioToolbox.framework */,
 				9BFA1117F1405088D9594553 /* libPods-Example.a */,
 			);
 			name = Frameworks;
@@ -210,6 +207,7 @@
 				07DF0A5A2BE92D3B005DAA3A /* AppDelegate.m in Sources */,
 				07DF0A6B2BE92D41005DAA3A /* main.m in Sources */,
 				07DF0A5D2BE92D3B005DAA3A /* SceneDelegate.m in Sources */,
+				07DF0A792BEA7DA7005DAA3A /* CCDRecorderView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

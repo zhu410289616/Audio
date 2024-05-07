@@ -40,6 +40,8 @@ Pod::Spec.new do |spec|
     cs.source_files = "Pod/Core/**/*.{h,m,mm}"
     cs.vendored_libraries = 'Pod/Core/Frameworks/**/*.a'
     cs.dependency "libextobjc/EXTScope"
+    cs.frameworks = "AudioToolbox"
+    cs.libraries = "c++"
   end
   
   spec.subspec "UIKit" do |cs|
