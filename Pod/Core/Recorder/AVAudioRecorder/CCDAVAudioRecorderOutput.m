@@ -9,7 +9,7 @@
 
 @implementation CCDAVAudioRecorderOutput
 
-@synthesize audioType = _audioType;
+//@synthesize audioType = _audioType;
 @synthesize audioFormat = _audioFormat;
 @synthesize filePath = _filePath;
 
@@ -29,7 +29,7 @@
     NSString *name = [NSString stringWithFormat:@"audio_output.m4a"];
     NSString *filePath = [NSTemporaryDirectory() stringByAppendingPathComponent:name];
     
-    audioOutput.audioType = CCDAudioTypeM4A;
+//    audioOutput.audioType = CCDAudioTypeM4A;
     audioOutput.audioFormat = tempAudioFormat;
     audioOutput.filePath = filePath;
     return audioOutput;
@@ -59,7 +59,7 @@
     NSString *name = [NSString stringWithFormat:@"audio_output.m4a"];
     NSString *filePath = [NSTemporaryDirectory() stringByAppendingPathComponent:name];
     
-    audioOutput.audioType = CCDAudioTypeCaf;
+//    audioOutput.audioType = CCDAudioTypeCaf;
     audioOutput.audioFormat = tempAudioFormat;
     audioOutput.filePath = filePath;
     return audioOutput;
@@ -82,7 +82,7 @@
     tempAudioFormat.mSampleRate = 16000;
     tempAudioFormat.mChannelsPerFrame = 1;
     
-    _audioType = CCDAudioTypeM4A;
+//    _audioType = CCDAudioTypeM4A;
     _audioFormat = tempAudioFormat;
 }
 

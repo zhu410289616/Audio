@@ -71,7 +71,7 @@ void *CCDCreateWaveHeader(int fileLength,
 
 @implementation CCDAQAudioRecorderSTOutput
 
-@synthesize audioType = _audioType;
+//@synthesize audioType = _audioType;
 @synthesize audioFormat = _audioFormat;
 @synthesize filePath = _filePath;
 
@@ -79,7 +79,7 @@ void *CCDCreateWaveHeader(int fileLength,
 {
     self = [super init];
     if (self) {
-        _audioType = CCDAudioTypeWav;
+//        _audioType = CCDAudioTypeWav;
         
         AudioStreamBasicDescription tempAudioFormat;
         memset(&tempAudioFormat, 0, sizeof(tempAudioFormat));

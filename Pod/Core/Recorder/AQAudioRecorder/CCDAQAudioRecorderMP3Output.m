@@ -18,7 +18,7 @@
 
 @implementation CCDAQAudioRecorderMP3Output
 
-@synthesize audioType;
+//@synthesize audioType;
 @synthesize audioFormat;
 @synthesize filePath;
 
@@ -26,7 +26,7 @@
 {
     self = [super init];
     if (self) {
-        self.audioType = CCDAudioTypeMP3;
+//        self.audioType = CCDAudioTypeMP3;
         
         AudioStreamBasicDescription tempAudioFormat;
         memset(&tempAudioFormat, 0, sizeof(tempAudioFormat));

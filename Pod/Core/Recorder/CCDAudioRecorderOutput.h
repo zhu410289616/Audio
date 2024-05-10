@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @required
 
-@property (nonatomic, assign) CCDAudioType audioType;
+//@property (nonatomic, assign) CCDAudioType audioType;
 @property (nonatomic, assign) AudioStreamBasicDescription audioFormat;
 @property (nonatomic, strong) NSString *filePath;
 

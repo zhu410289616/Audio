@@ -18,7 +18,7 @@
 
 @implementation CCDAQAudioRecorderAMROutput
 
-@synthesize audioType;
+//@synthesize audioType;
 @synthesize audioFormat;
 @synthesize filePath;
 
@@ -26,7 +26,7 @@
 {
     self = [super init];
     if (self) {
-        self.audioType = CCDAudioTypeAMR;
+//        self.audioType = CCDAudioTypeAMR;
         
         AudioStreamBasicDescription tempAudioFormat;
         memset(&tempAudioFormat, 0, sizeof(tempAudioFormat));
