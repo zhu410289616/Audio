@@ -10,16 +10,24 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef void(^CCDAudioDataCallback)(void * _Nullable bytes, NSInteger size);
+
 @protocol CCDAudioPlayerInput <NSObject>
 
 @required
 
-@property (nonatomic, strong) NSString *audioId;
-@property (nonatomic, strong) NSString *filePath;
+@property (nonatomic, strong) NSString *audioPath;
 
-@optional
+@end
 
-@property (nonatomic, strong) NSURL *fileURL;
+@protocol CCDAudioPlayerFormatInput <CCDAudioPlayerInput>
+
+@property (nonatomic, assign) AudioStreamBasicDescription audioFormat;
+
+- (void)begin;
+- (void)end;
+
+- (void)read:(CCDAudioDataCallback)callback maxSize:(NSInteger)maxSize;
 
 @end
 

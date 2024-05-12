@@ -10,6 +10,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSInteger, CCDAudioPlayerState) {
+    CCDAudioPlayerStateNone,
+    CCDAudioPlayerStatePlay,
+    CCDAudioPlayerStatePause,
+    CCDAudioPlayerStateStop
+};
+
 @protocol CCDAudioPlayerProvider;
 
 #pragma mark -
@@ -37,10 +44,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) float volume;
 @property (nonatomic, assign) NSInteger numberOfLoops;
 
-- (BOOL)prepareToPlay;
-
-- (void)startPlay;
-- (void)stopPlay;
+- (BOOL)prepare;
+- (void)play;
+- (void)pause;
+- (void)stop;
 
 @end
 

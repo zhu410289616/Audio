@@ -23,12 +23,12 @@
 
 #pragma mark - record input proc
 
-OSStatus CCDAudioUnitRecordCallback(void *                       inRefCon,
-                                    AudioUnitRenderActionFlags * ioActionFlags,
-                                    const AudioTimeStamp *       inTimeStamp,
-                                    UInt32                       inBusNumber,
-                                    UInt32                       inNumberFrames,
-                                    AudioBufferList * __nullable ioData)
+OSStatus CCDAURecordCallback(void *                       inRefCon,
+                             AudioUnitRenderActionFlags * ioActionFlags,
+                             const AudioTimeStamp *       inTimeStamp,
+                             UInt32                       inBusNumber,
+                             UInt32                       inNumberFrames,
+                             AudioBufferList * __nullable ioData)
 {
     CCDAUAudioRecorder *recorder = (__bridge CCDAUAudioRecorder *)(inRefCon);
     id<CCDAudioUnitRecorderOutput> audioOutput = nil;
@@ -105,7 +105,7 @@ OSStatus CCDAudioUnitRecordCallback(void *                       inRefCon,
         
         //录音的回调方法，INPUT_BUS收音之后拿到的音频数据，会通过这个静态方法回调给我们
         AURenderCallbackStruct recordCallback;
-        recordCallback.inputProc = CCDAudioUnitRecordCallback;
+        recordCallback.inputProc = CCDAURecordCallback;
         recordCallback.inputProcRefCon = (__bridge void *)self;
         OSStatus status = noErr;
         status = AudioUnitSetProperty(_audioUnit,

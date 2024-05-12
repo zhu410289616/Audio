@@ -12,6 +12,9 @@
 #import <CCDAudio/CCDAVAudioPlayer.h>
 #import <CCDAudio/CCDAVAudioPlayerInput.h>
 
+#import <CCDAudio/CCDAUAudioPlayer.h>
+#import <CCDAudio/CCDAudioPlayerInputPCM.h>
+
 //recorder
 #import <CCDAudio/CCDAVAudioRecorder.h>
 #import <CCDAudio/CCDAVAudioRecorderOutput.h>
@@ -64,15 +67,23 @@ CCDAudioPlayerDelegate
 - (void)doPlayButtonAction
 {
     if (self.player.isRunning) {
-        [self.player stopPlay];
+        [self.player stop];
     } else {
-        CCDAVAudioPlayerInput *input = [[CCDAVAudioPlayerInput alloc] init];
-        input.filePath = self.filePath;
-        self.player = [[CCDAVAudioPlayer alloc] init];
+//        CCDAVAudioPlayerInput *input = [[CCDAVAudioPlayerInput alloc] init];
+//        input.filePath = self.filePath;
+//        self.player = [[CCDAVAudioPlayer alloc] init];
+        
+//        NSURL *audioURL = [[NSBundle mainBundle] URLForResource:@"china-x" withExtension:@"pcm"];
+        NSURL *audioURL = [[NSBundle mainBundle] URLForResource:@"noise" withExtension:@"pcm"];
+        CCDAudioPlayerInputPCM *input = [[CCDAudioPlayerInputPCM alloc] initWithURL:audioURL];
+        self.player = [[CCDAUAudioPlayer alloc] init];
+        
         self.player.delegate = self;
         self.player.audioInput = input;
-        [self.player prepareToPlay];
-        [self.player startPlay];
+        if (![self.player prepare]) {
+            CCDAudioLogE(@"audio unit prepare failed");
+        }
+        [self.player play];
     }
 }
 
@@ -145,7 +156,7 @@ CCDAudioPlayerDelegate
 
 - (void)playerDidStop:(id<CCDAudioPlayerProvider>)player
 {
-    CCDAudioLog(@"playerDidStop: %@", player.audioInput.filePath);
+    CCDAudioLog(@"playerDidStop: %@", player.audioInput.audioPath);
     
     [[AVAudioSession sharedInstance] setActive:NO error:nil];
 }
