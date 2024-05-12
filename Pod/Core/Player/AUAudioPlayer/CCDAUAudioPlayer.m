@@ -29,11 +29,6 @@
 
 #pragma mark - CCDAudioPlayerProvider
 
-- (BOOL)isRunning
-{
-    return NO;
-}
-
 - (void)setVolume:(float)volume
 {
 //    self.player.volume = volume;
@@ -73,7 +68,7 @@ static OSStatus CCDAUPlayCallback(void *inRefCon,
     NSInteger channels = player.audioInput.audioFormat.mChannelsPerFrame;
     if (bufferSize <= 0) {
         for (NSInteger i=0; i<channels; i++) {
-            memset(ioData->mBuffers[i].mData, 0, bufferSize);
+            memset(ioData->mBuffers[i].mData, 0, ioData->mBuffers[0].mDataByteSize);
         }
         dispatch_async(dispatch_get_main_queue(), ^{
             [player stop];
@@ -170,7 +165,7 @@ static OSStatus CCDAUPlayCallback(void *inRefCon,
 - (void)stop
 {
     if (!self.isRunning) {
-//        return;
+        return;
     }
     self.isRunning = NO;
     

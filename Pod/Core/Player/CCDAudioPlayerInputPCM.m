@@ -18,12 +18,10 @@
 @synthesize audioPath = _audioPath;
 @synthesize audioFormat = _audioFormat;
 
-- (instancetype)initWithPath:(NSString *)path
+- (instancetype)init
 {
     self = [super init];
     if (self) {
-        _audioPath = path;
-        _inputStream = [[NSInputStream alloc] initWithFileAtPath:path];
         [self setupAudioFormat];
     }
     return self;

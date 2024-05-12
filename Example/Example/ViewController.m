@@ -98,6 +98,7 @@ CCDAudioPlayerDelegate
 {
     if (self.player.isRunning) {
         [self.player stop];
+        [self.recorderView.playButton setTitle:@"play" forState:UIControlStateNormal];
     } else {
 //        CCDAVAudioPlayerInput *input = [[CCDAVAudioPlayerInput alloc] init];
 //        input.filePath = self.filePath;
@@ -110,8 +111,10 @@ CCDAudioPlayerDelegate
 //        NSURL *audioURL = [[NSBundle mainBundle] URLForResource:@"noise" withExtension:@"pcm"];//16000
 //        NSInteger sampleRate = 16000;
         
+        if (self.filePath.length > 0) {
+            audioURL = [NSURL fileURLWithPath:self.filePath];
+        }
         CCDAudioPlayerInputPCM *input = [[CCDAudioPlayerInputPCM alloc] initWithURL:audioURL];
-        input = [[CCDAudioPlayerInputPCM alloc] initWithPath:self.filePath];
         input.audioFormat = [self pcmAudioFormat:sampleRate];
         self.player = [[CCDAUAudioPlayer alloc] init];
         
@@ -121,6 +124,7 @@ CCDAudioPlayerDelegate
             CCDAudioLogE(@"audio unit prepare failed");
         }
         [self.player play];
+        [self.recorderView.playButton setTitle:@"stop" forState:UIControlStateNormal];
     }
 }
 
@@ -145,11 +149,13 @@ CCDAudioPlayerDelegate
 {
     if (self.recorder.isRunning) {
         [self stopRecord];
+        [self.recorderView.auRecordButton setTitle:@"audio record start" forState:UIControlStateNormal];
     } else {
         CCDAudioRecorderOutputPCM *output = [[CCDAudioRecorderOutputPCM alloc] init];
         output.audioFormat = [self pcmAudioFormat:44100];
         [self setupAURecorder:output];
         [self startRecord];
+        [self.recorderView.auRecordButton setTitle:@"audio record stop" forState:UIControlStateNormal];
     }
 }
 
@@ -196,6 +202,7 @@ CCDAudioPlayerDelegate
 {
     CCDAudioLog(@"playerDidStop: %@", player.audioInput.audioPath);
     
+    self.filePath = nil;
     [[AVAudioSession sharedInstance] setActive:NO error:nil];
 }
 

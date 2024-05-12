@@ -12,7 +12,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface CCDAudioPlayerInputPCM : NSObject <CCDAudioPlayerDataInput>
 
-- (instancetype)initWithPath:(NSString *)path;
 - (instancetype)initWithURL:(NSURL *)audioURL;
 
 @end
