@@ -16,12 +16,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 //@property (nonatomic, assign) CCDAudioType audioType;
 @property (nonatomic, assign) AudioStreamBasicDescription audioFormat;
-@property (nonatomic, strong) NSString *filePath;
+@property (nonatomic, strong) NSString *audioPath;
 
 @optional
 
 - (BOOL)openAudioFile;
 - (void)closeAudioFile;
+
+@end
+
+@protocol CCDAudioRecorderDataOutput <CCDAudioRecorderOutput>
+
+@property (nonatomic, assign) AudioStreamBasicDescription audioFormat;
+
+- (void)begin;
+- (void)end;
+
+- (void)write:(AudioBufferList *)bufferList;
+- (void)write:(void *)bytes maxSize:(NSInteger)maxSize;
 
 @end
 

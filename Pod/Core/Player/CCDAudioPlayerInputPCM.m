@@ -18,10 +18,12 @@
 @synthesize audioPath = _audioPath;
 @synthesize audioFormat = _audioFormat;
 
-- (instancetype)init
+- (instancetype)initWithPath:(NSString *)path
 {
     self = [super init];
     if (self) {
+        _audioPath = path;
+        _inputStream = [[NSInputStream alloc] initWithFileAtPath:path];
         [self setupAudioFormat];
     }
     return self;
@@ -74,7 +76,7 @@
     return _inputStream;
 }
 
-#pragma mark - CCDAudioPlayerFormatInput
+#pragma mark - CCDAudioPlayerDataInput
 
 - (void)begin
 {
@@ -90,6 +92,13 @@
 {
     void *buffer = malloc(maxSize);
     NSInteger readSize = [self.inputStream read:buffer maxLength:maxSize];
+    
+#ifdef DEBUG
+//    CCDAudioLogD(@"read size: %@", @(readSize));
+//    NSData *bufferData = [NSData dataWithBytes:buffer length:readSize];
+//    CCDAudioLogD(@"buffer data: %@", bufferData);
+#endif
+    
     !callback ?: callback(buffer, readSize);
     !buffer ?: free(buffer);
 }

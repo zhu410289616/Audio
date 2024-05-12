@@ -20,7 +20,7 @@ typedef void(^CCDAudioDataCallback)(void * _Nullable bytes, NSInteger size);
 
 @end
 
-@protocol CCDAudioPlayerFormatInput <CCDAudioPlayerInput>
+@protocol CCDAudioPlayerDataInput <CCDAudioPlayerInput>
 
 @property (nonatomic, assign) AudioStreamBasicDescription audioFormat;
 

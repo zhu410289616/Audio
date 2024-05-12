@@ -18,9 +18,8 @@
 
 @implementation CCDAQAudioRecorderMP3Output
 
-//@synthesize audioType;
+@synthesize audioPath;
 @synthesize audioFormat;
-@synthesize filePath;
 
 - (instancetype)init
 {
@@ -47,7 +46,7 @@
         self.audioFormat = tempAudioFormat;
         
         NSString *name = [NSString stringWithFormat:@"audio_output.mp3"];
-        self.filePath = [NSTemporaryDirectory() stringByAppendingPathComponent:name];
+        self.audioPath = [NSTemporaryDirectory() stringByAppendingPathComponent:name];
     }
     return self;
 }
@@ -56,7 +55,7 @@
 
 - (BOOL)openAudioFile
 {
-    NSString *filePath = self.filePath;
+    NSString *filePath = self.audioPath;
     
     //mp3压缩参数
     _lame = lame_init();

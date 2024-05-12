@@ -28,13 +28,13 @@
     return [self.recorder isRecording];
 }
 
-- (BOOL)prepareToRecord
+- (BOOL)prepare
 {
     if ([self.delegate respondsToSelector:@selector(recorderWillStart:)]) {
         [self.delegate recorderWillStart:self];
     }
     
-    NSString *filePath = self.audioOutput.filePath;
+    NSString *filePath = self.audioOutput.audioPath;
     CCDAudioLog(@"filePath: %@", filePath);
     if (filePath.length == 0) {
         return NO;
@@ -66,7 +66,7 @@
     return [self.recorder prepareToRecord];
 }
 
-- (void)startRecord
+- (void)start
 {
     self.isRunning = [self.recorder record];
     
@@ -75,7 +75,7 @@
     }
 }
 
-- (void)stopRecord
+- (void)stop
 {
     if (!self.isRunning || !self.recorder) {
         return;

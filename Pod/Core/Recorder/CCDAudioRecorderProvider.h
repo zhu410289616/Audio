@@ -37,10 +37,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) id<CCDAudioRecorderOutput> audioOutput;
 @property (nonatomic, assign) BOOL isRunning;
 
-- (BOOL)prepareToRecord;
+- (BOOL)prepare;
 
-- (void)startRecord;
-- (void)stopRecord;
+- (void)start;
+- (void)stop;
 
 @optional
 

@@ -6,11 +6,12 @@
 //
 
 #import "CCDAUAudioRecorder.h"
+#import "CCDAudioDefines.h"
 
 @interface CCDAUAudioRecorder ()
-{
-    AudioUnit _audioUnit;
-}
+
+@property (nonatomic, assign) AudioUnit audioUnit;
+@property (nonatomic, assign) CGFloat db;
 
 @end
 
@@ -23,158 +24,172 @@
 
 #pragma mark - record input proc
 
-OSStatus CCDAURecordCallback(void *                       inRefCon,
-                             AudioUnitRenderActionFlags * ioActionFlags,
-                             const AudioTimeStamp *       inTimeStamp,
-                             UInt32                       inBusNumber,
-                             UInt32                       inNumberFrames,
-                             AudioBufferList * __nullable ioData)
+static OSStatus CCDAURecordCallback(void *                       inRefCon,
+                                    AudioUnitRenderActionFlags * ioActionFlags,
+                                    const AudioTimeStamp *       inTimeStamp,
+                                    UInt32                       inBusNumber,
+                                    UInt32                       inNumberFrames,
+                                    AudioBufferList * __nullable ioData)
 {
     CCDAUAudioRecorder *recorder = (__bridge CCDAUAudioRecorder *)(inRefCon);
-    id<CCDAudioUnitRecorderOutput> audioOutput = nil;
-    if ([recorder.audioOutput conformsToProtocol:@protocol(CCDAudioUnitRecorderOutput)]) {
-        audioOutput = (id<CCDAudioUnitRecorderOutput>)recorder.audioOutput;
-    }
+    NSInteger channels = recorder.audioOutput.audioFormat.mChannelsPerFrame;
+    static UInt32 constBufferSize = 5000;
     
     AudioBufferList bufferList = {0};
-    bufferList.mNumberBuffers = 1;
-    bufferList.mBuffers[0].mData = NULL;
-    bufferList.mBuffers[0].mDataByteSize = 0;
-    bufferList.mBuffers[0].mNumberChannels = audioOutput.audioFormat.mChannelsPerFrame;
+    bufferList.mNumberBuffers = (UInt32)channels;
+    for (NSInteger i=0; i<channels; i++) {
+        bufferList.mBuffers[0].mDataByteSize = constBufferSize;
+        bufferList.mBuffers[0].mData = malloc(constBufferSize);
+    }
     
-    OSStatus status = AudioUnitRender(recorder->_audioUnit, ioActionFlags, inTimeStamp, inBusNumber, inNumberFrames, &bufferList);
+    OSStatus status = noErr;
+    status = AudioUnitRender(recorder.audioUnit,
+                             ioActionFlags,
+                             inTimeStamp,
+                             inBusNumber,
+                             inNumberFrames,
+                             &bufferList);
     if (status != noErr) {
-        CCDAudioLogE(@"CCDAudioUnitInputCallback error: %@", @(status));
+        CCDAudioLogE(@"AudioUnitRender: %@", @(status));
         return status;
     }
     
-    UInt32 dataSize = bufferList.mBuffers[0].mDataByteSize;
-    void *data = bufferList.mBuffers[0].mData;
-    if (audioOutput && dataSize > 0 && data) {
-        char *dst = (char *)calloc(1, dataSize);
-        memcpy(dst, data, dataSize);
-        [audioOutput receiveAudio:dst size:dataSize];
-//        [audioOutput receiveAudio:bufferList];
+    //录音完成，可以对音频数据进行处理了，保存下来或者计算录音的分贝数等等
+    //如果你需要计算录音时的音量，显示录音动画，这里就可以通过bufferList->mBuffers[0].mData计算得出
+    Byte *bufferData = bufferList.mBuffers[0].mData;
+    UInt32 bufferSize = bufferList.mBuffers[0].mDataByteSize;
+    //因为我们的采样位数是16个字节，也就是需要用SInt16来存储
+    SInt16 *shortBuffer = (SInt16 *)bufferData;
+    NSInteger pcmAllLen = 0;
+    //因为原数据bufferData是8位存储的，但是我们采样是16位，所以这里长度要减半
+    for(int i=0;i<bufferSize/2;++i) {
+        NSInteger tmp = shortBuffer[i];
+        pcmAllLen += tmp*tmp;
     }
+//    CGFloat db = 10 * log10((CGFloat)pcmAllLen / bufferSize);
+    //这里db就是我们计算出来的，当前这段音频的通过声压计算分贝算出来的，最大是90.3分贝
+    recorder.db = log10((CGFloat)pcmAllLen / bufferSize);
     
+    [recorder.audioOutput write:&bufferList];
+    
+    for (NSInteger i=0; i<channels; i++) {
+        if (bufferList.mBuffers[0].mData) {
+            free(bufferList.mBuffers[0].mData);
+            bufferList.mBuffers[0].mData = NULL;
+        }
+    }
     return status;
 }
 
 #pragma mark - CCDAudioRecorderProvider
 
-- (BOOL)prepareToRecord
+- (BOOL)prepare
 {
-    @try {
-        if ([self.delegate respondsToSelector:@selector(recorderWillStart:)]) {
-            [self.delegate recorderWillStart:self];
-        }
-        
-        // init audio unit
-        AudioComponentDescription inputCompDesc = {0};
-        inputCompDesc.componentType = kAudioUnitType_Output;
-        inputCompDesc.componentSubType = kAudioUnitSubType_VoiceProcessingIO;
-        inputCompDesc.componentManufacturer = kAudioUnitManufacturer_Apple;
-        inputCompDesc.componentFlags = 0;
-        inputCompDesc.componentFlagsMask = 0;
-        
-        AudioComponent component = AudioComponentFindNext(NULL, &inputCompDesc);
-        OSStatus ret = AudioComponentInstanceNew(component, &_audioUnit);
-        if (ret != noErr) {
-            return NO;
-        }
-        
-        // specify the recording format
-        AudioStreamBasicDescription outStreamDes = self.audioOutput.audioFormat;
-        
-        AudioUnitSetProperty(_audioUnit,
-                             kAudioUnitProperty_StreamFormat,
-                             kAudioUnitScope_Output,
-                             1,/**INPUT_BUS*/
-                             &outStreamDes,
-                             sizeof(outStreamDes));
-        
-        //打开录音流功能，否则无法录音
-        //但是播放能力是默认打开的，所以不需要设置OUTPUT_BUS的kAudioUnitScope_Output
-        UInt32 enableRecord = 1;
-        AudioUnitSetProperty(_audioUnit,
-                             kAudioOutputUnitProperty_EnableIO,
-                             kAudioUnitScope_Input,
-                             1,/**INPUT_BUS*/
-                             &enableRecord,
-                             sizeof(enableRecord));
-        
-        //录音的回调方法，INPUT_BUS收音之后拿到的音频数据，会通过这个静态方法回调给我们
-        AURenderCallbackStruct recordCallback;
-        recordCallback.inputProc = CCDAURecordCallback;
-        recordCallback.inputProcRefCon = (__bridge void *)self;
-        OSStatus status = noErr;
-        status = AudioUnitSetProperty(_audioUnit,
-                                      kAudioOutputUnitProperty_SetInputCallback,
-                                      kAudioUnitScope_Output,
-                                      1,/**INPUT_BUS*/
-                                      &recordCallback,
-                                      sizeof(recordCallback));
-        
-        //初始化，注意，这里只是初始化，还没开始播放
-        //这里初始化出现错误，请检查audioPCMFormat，outputFormat等格式是否有设置错误的
-        //比如设置了双声道，但是没有设置kAudioFormatFlagIsNonInterleaved
-        status = AudioUnitInitialize(_audioUnit);
-        if (status != noErr) {
-            return NO;
-        }
-        
-        if ([self.audioOutput respondsToSelector:@selector(openAudioFile)]) {
-            [self.audioOutput openAudioFile];
-        }
-    } @catch (NSException *exception) {
-        NSError *error = CCDAudioMakeError(-1, @"start audio unit error");
-        if ([self.delegate respondsToSelector:@selector(recorderWithError:)]) {
-            [self.delegate recorderWithError:error];
-        }
+    if ([self.delegate respondsToSelector:@selector(recorderWillStart:)]) {
+        [self.delegate recorderWillStart:self];
     }
+    
+    // init audio unit
+    AudioComponentDescription audioDesc;
+    audioDesc.componentType = kAudioUnitType_Output;
+    audioDesc.componentSubType = kAudioUnitSubType_RemoteIO;
+    audioDesc.componentManufacturer = kAudioUnitManufacturer_Apple;
+    audioDesc.componentFlags = 0;
+    audioDesc.componentFlagsMask = 0;
+    AudioComponent component = AudioComponentFindNext(NULL, &audioDesc);
+    AudioComponentInstanceNew(component, &_audioUnit);
+    
+    // specify the recording format
+    AudioStreamBasicDescription audioFormat = self.audioOutput.audioFormat;
+    OSStatus status = noErr;
+    status = AudioUnitSetProperty(_audioUnit,
+                                  kAudioUnitProperty_StreamFormat,
+                                  kAudioUnitScope_Output,
+                                  1,/**INPUT_BUS*/
+                                  &audioFormat,
+                                  sizeof(audioFormat));
+    if (status != noErr) {
+        CCDAudioLogE(@"kAudioUnitProperty_StreamFormat: %@", @(status));
+        return NO;
+    }
+    
+    //打开录音流功能，否则无法录音
+    //但是播放能力是默认打开的，所以不需要设置OUTPUT_BUS的kAudioUnitScope_Output
+    UInt32 enableRecord = 1;
+    status = AudioUnitSetProperty(_audioUnit,
+                                  kAudioOutputUnitProperty_EnableIO,
+                                  kAudioUnitScope_Input,
+                                  1,/**INPUT_BUS*/
+                                  &enableRecord,
+                                  sizeof(enableRecord));
+    if (status != noErr) {
+        CCDAudioLogE(@"kAudioOutputUnitProperty_EnableIO: %@", @(status));
+        return NO;
+    }
+    
+    AURenderCallbackStruct recordCallback;
+    recordCallback.inputProc = CCDAURecordCallback;
+    recordCallback.inputProcRefCon = (__bridge void *)self;
+    
+    status = AudioUnitSetProperty(_audioUnit,
+                                  kAudioOutputUnitProperty_SetInputCallback,
+                                  kAudioUnitScope_Output,
+                                  1,/**INPUT_BUS*/
+                                  &recordCallback,
+                                  sizeof(recordCallback));
+    if (status != noErr) {
+        CCDAudioLogE(@"kAudioOutputUnitProperty_SetInputCallback: %@", @(status));
+        return NO;
+    }
+    
+    status = AudioUnitInitialize(_audioUnit);
+    if (status != noErr) {
+        CCDAudioLogE(@"AudioUnitInitialize: %@", @(status));
+        return NO;
+    }
+    self.meteringEnabled = YES;
     return YES;
 }
 
-- (void)startRecord
+- (void)start
 {
-    OSStatus status = AudioOutputUnitStart(_audioUnit);
-    if (status != noErr) {
-        NSError *error = CCDAudioMakeError(status, @"start audio unit error");
-        if ([self.delegate respondsToSelector:@selector(recorderWithError:)]) {
-            [self.delegate recorderWithError:error];
-        }
+    if (self.isRunning) {
         return;
     }
-    
     self.isRunning = YES;
+    
+    [self.audioOutput begin];
+    OSStatus status = AudioOutputUnitStart(_audioUnit);
+    CCDAudioLogD(@"AudioOutputUnitStart: %@", @(status));
+    if (status != noErr && [self.delegate respondsToSelector:@selector(recorderWithError:)]) {
+        NSError *error = CCDAudioMakeError(status, @"AudioOutputUnitStart");
+        [self.delegate recorderWithError:error];
+    }
     
     if ([self.delegate respondsToSelector:@selector(recorderDidStart:)]) {
         [self.delegate recorderDidStart:self];
     }
 }
 
-- (void)stopRecord
+- (void)stop
 {
     if (!self.isRunning) {
         return;
     }
-    
     self.isRunning = NO;
-    OSStatus status = AudioOutputUnitStop(_audioUnit);
-    if (status != noErr) {
-        NSError *error = CCDAudioMakeError(status, @"start audio unit error");
-        if ([self.delegate respondsToSelector:@selector(recorderWithError:)]) {
-            [self.delegate recorderWithError:error];
-        }
-    }
     
-    if ([self.audioOutput respondsToSelector:@selector(closeAudioFile)]) {
-        [self.audioOutput closeAudioFile];
-    }
-    // stop
+    [self.audioOutput end];
+    OSStatus status = AudioOutputUnitStop(_audioUnit);
+    CCDAudioLogD(@"AudioOutputUnitStop: %@", @(status));
+    
     if ([self.delegate respondsToSelector:@selector(recorderDidStop:)]) {
         [self.delegate recorderDidStop:self];
     }
+}
+
+- (float)averagePowerWithChannel:(int)channel
+{
+    return self.db;
 }
 
 @end

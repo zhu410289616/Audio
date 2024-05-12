@@ -9,9 +9,8 @@
 
 @implementation CCDAVAudioRecorderOutput
 
-//@synthesize audioType = _audioType;
+@synthesize audioPath = _audioPath;
 @synthesize audioFormat = _audioFormat;
-@synthesize filePath = _filePath;
 
 + (instancetype)m4aAudioOutput
 {
@@ -31,7 +30,7 @@
     
 //    audioOutput.audioType = CCDAudioTypeM4A;
     audioOutput.audioFormat = tempAudioFormat;
-    audioOutput.filePath = filePath;
+    audioOutput.audioPath = filePath;
     return audioOutput;
 }
 
@@ -61,7 +60,7 @@
     
 //    audioOutput.audioType = CCDAudioTypeCaf;
     audioOutput.audioFormat = tempAudioFormat;
-    audioOutput.filePath = filePath;
+    audioOutput.audioPath = filePath;
     return audioOutput;
 }
 
@@ -86,13 +85,13 @@
     _audioFormat = tempAudioFormat;
 }
 
-- (NSString *)filePath
+- (NSString *)audioPath
 {
-    if (nil == _filePath) {
+    if (nil == _audioPath) {
         NSString *filename = [NSString stringWithFormat:@"%@", @"audio.m4a"];
-        _filePath = [NSTemporaryDirectory() stringByAppendingPathComponent:filename];
+        _audioPath = [NSTemporaryDirectory() stringByAppendingPathComponent:filename];
     }
-    return _filePath;
+    return _audioPath;
 }
 
 #pragma mark - CCDAudioRecorderOutput
@@ -100,12 +99,12 @@
 - (BOOL)openAudioFile
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    if ([fileManager fileExistsAtPath:self.filePath]) {
-        [fileManager removeItemAtPath:self.filePath error:nil];
+    if ([fileManager fileExistsAtPath:self.audioPath]) {
+        [fileManager removeItemAtPath:self.audioPath error:nil];
         return YES;
     }
     
-    BOOL isSuccess = [fileManager createFileAtPath:self.filePath contents:nil attributes:nil];
+    BOOL isSuccess = [fileManager createFileAtPath:self.audioPath contents:nil attributes:nil];
     return isSuccess;
 }
 

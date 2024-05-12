@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface CCDAUAudioPlayer : NSObject <CCDAudioPlayerProvider>
 
-@property (nonatomic, strong) id<CCDAudioPlayerFormatInput> audioInput;
+@property (nonatomic, strong) id<CCDAudioPlayerDataInput> audioInput;
 
 @end
 

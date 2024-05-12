@@ -82,7 +82,7 @@ void CCDAudioQueueInputBufferHandler(void *inUserData,
 
 #pragma mark - CCDAudioRecorderProvider
 
-- (BOOL)prepareToRecord
+- (BOOL)prepare
 {
     @try {
         if ([self.delegate respondsToSelector:@selector(recorderWillStart:)]) {
@@ -144,7 +144,7 @@ void CCDAudioQueueInputBufferHandler(void *inUserData,
     return YES;
 }
 
-- (void)startRecord
+- (void)start
 {
     // start the queue
     OSStatus status = AudioQueueStart(_audioQueue, NULL);
@@ -159,7 +159,7 @@ void CCDAudioQueueInputBufferHandler(void *inUserData,
     }
 }
 
-- (void)stopRecord
+- (void)stop
 {
     if (!self.isRunning) {
         return;

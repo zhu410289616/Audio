@@ -70,13 +70,9 @@ static OSStatus CCDAUPlayCallback(void *inRefCon,
         bufferSize = size;
     } maxSize:ioData->mBuffers[0].mDataByteSize];
     
-#ifdef DEBUG
-    CCDAudioLogD(@"read size: %@", @(bufferSize));
-#endif
-    
-    NSInteger channel = player.audioInput.audioFormat.mChannelsPerFrame;
+    NSInteger channels = player.audioInput.audioFormat.mChannelsPerFrame;
     if (bufferSize <= 0) {
-        for (NSInteger i=0; i<channel; i++) {
+        for (NSInteger i=0; i<channels; i++) {
             memset(ioData->mBuffers[i].mData, 0, bufferSize);
         }
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -85,17 +81,11 @@ static OSStatus CCDAUPlayCallback(void *inRefCon,
         return noErr;
     }
     
-#ifdef DEBUG
-    NSData *bufferData = [NSData dataWithBytes:buffer length:bufferSize];
-    CCDAudioLogD(@"buffer data: %@", bufferData);
-#endif
-    
     // 复制数据到各个声道
-    for (NSInteger i=0; i<channel; i++) {
+    for (NSInteger i=0; i<channels; i++) {
         memcpy(ioData->mBuffers[i].mData, buffer, bufferSize);
         ioData->mBuffers[i].mDataByteSize = (UInt32)bufferSize;
     }
-    
     return noErr;
 }
 
@@ -105,6 +95,7 @@ static OSStatus CCDAUPlayCallback(void *inRefCon,
         [self.delegate playerWillStart:self];
     }
     
+    // init audio unit
     AudioComponentDescription audioDesc;
     audioDesc.componentType = kAudioUnitType_Output;
     audioDesc.componentSubType = kAudioUnitSubType_RemoteIO;
@@ -114,9 +105,10 @@ static OSStatus CCDAUPlayCallback(void *inRefCon,
     AudioComponent component = AudioComponentFindNext(NULL, &audioDesc);
     AudioComponentInstanceNew(component, &_audioUnit);
     
+    // specify the recording format
     AudioStreamBasicDescription audioFormat = [self.audioInput audioFormat];
     OSStatus status = noErr;
-    status = AudioUnitSetProperty(self.audioUnit,
+    status = AudioUnitSetProperty(_audioUnit,
                          kAudioUnitProperty_StreamFormat,
                          kAudioUnitScope_Input,
                          0,/**OUTPUT_BUS*/
@@ -130,7 +122,8 @@ static OSStatus CCDAUPlayCallback(void *inRefCon,
     AURenderCallbackStruct playCallback;
     playCallback.inputProc = CCDAUPlayCallback;
     playCallback.inputProcRefCon = (__bridge void *)self;
-    status = AudioUnitSetProperty(self.audioUnit,
+    
+    status = AudioUnitSetProperty(_audioUnit,
                          kAudioUnitProperty_SetRenderCallback,
                          kAudioUnitScope_Input,
                          0,/**OUTPUT_BUS*/
@@ -141,7 +134,7 @@ static OSStatus CCDAUPlayCallback(void *inRefCon,
         return NO;
     }
     
-    status = AudioUnitInitialize(self.audioUnit);
+    status = AudioUnitInitialize(_audioUnit);
     if (status != noErr) {
         CCDAudioLogE(@"AudioUnitInitialize: %@", @(status));
         return NO;

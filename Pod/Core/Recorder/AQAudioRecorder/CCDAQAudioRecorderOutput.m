@@ -21,10 +21,10 @@
 
 - (BOOL)openAudioFile
 {
-    NSString *filePath = self.filePath;
+    NSString *filePath = self.audioPath;
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    if ([fileManager fileExistsAtPath:self.filePath]) {
-        [fileManager removeItemAtPath:self.filePath error:nil];
+    if ([fileManager fileExistsAtPath:filePath]) {
+        [fileManager removeItemAtPath:filePath error:nil];
     }
     
     AudioStreamBasicDescription audioFormat = self.audioFormat;

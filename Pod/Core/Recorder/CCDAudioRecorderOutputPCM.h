@@ -1,19 +1,18 @@
 //
-//  CCDAudioPlayerInputPCM.h
+//  CCDAudioRecorderOutputPCM.h
 //  CCDAudio
 //
 //  Created by 十年之前 on 2024/5/12.
 //
 
 #import <Foundation/Foundation.h>
-#import "CCDAudioPlayerInput.h"
+#import "CCDAudioRecorderOutput.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface CCDAudioPlayerInputPCM : NSObject <CCDAudioPlayerDataInput>
+@interface CCDAudioRecorderOutputPCM : NSObject <CCDAudioRecorderDataOutput>
 
 - (instancetype)initWithPath:(NSString *)path;
-- (instancetype)initWithURL:(NSURL *)audioURL;
 
 @end
 

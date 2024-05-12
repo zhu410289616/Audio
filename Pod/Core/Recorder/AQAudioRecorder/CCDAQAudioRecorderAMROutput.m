@@ -19,8 +19,8 @@
 @implementation CCDAQAudioRecorderAMROutput
 
 //@synthesize audioType;
+@synthesize audioPath;
 @synthesize audioFormat;
-@synthesize filePath;
 
 - (instancetype)init
 {
@@ -47,7 +47,7 @@
         self.audioFormat = tempAudioFormat;
         
         NSString *name = [NSString stringWithFormat:@"audio_output.amr"];
-        self.filePath = [NSTemporaryDirectory() stringByAppendingPathComponent:name];
+        self.audioPath = [NSTemporaryDirectory() stringByAppendingPathComponent:name];
     }
     return self;
 }
@@ -56,7 +56,7 @@
 
 - (BOOL)openAudioFile
 {
-    NSString *filePath = self.filePath;
+    NSString *filePath = self.audioPath;
     
     _destate = NULL;
     //amr压缩句柄
