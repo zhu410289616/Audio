@@ -44,7 +44,7 @@ OSStatus CCDAudioUnitRecordCallback(void *                       inRefCon,
     
     OSStatus status = AudioUnitRender(recorder->_audioUnit, ioActionFlags, inTimeStamp, inBusNumber, inNumberFrames, &bufferList);
     if (status != noErr) {
-        CCDAudioLogError(@"CCDAudioUnitInputCallback error: %@", @(status));
+        CCDAudioLogE(@"CCDAudioUnitInputCallback error: %@", @(status));
         return status;
     }
     

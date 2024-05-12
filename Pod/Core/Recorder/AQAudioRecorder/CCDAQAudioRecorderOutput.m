@@ -55,7 +55,7 @@
     
     OSStatus status = AudioFileWritePackets(_audioFile, FALSE, inBuffer->mAudioDataByteSize, inPacketDesc, _audioPacket, &inNumPackets, inBuffer->mAudioData);
     if (status != noErr) {
-        CCDAudioLogError(@"AudioFileWritePackets error");
+        CCDAudioLogE(@"AudioFileWritePackets error");
     }
     _audioPacket += inNumPackets;
 }

@@ -40,10 +40,7 @@ void CCDAudioQueueInputBufferHandler(void *inUserData,
                                      UInt32 inNumPackets,
                                      const AudioStreamPacketDescription *inPacketDesc)
 {
-    if (inNumPackets == 0) {
-        return;
-    }
-//    CCDAudioLogError(@"inNumPackets: %d", inNumPackets);
+    if (inNumPackets == 0) {  return; }
     
     id<CCDAudioRecorderProvider> recorder = nil;
     @try {
@@ -60,7 +57,7 @@ void CCDAudioQueueInputBufferHandler(void *inUserData,
         if ([recorder.audioOutput conformsToProtocol:@protocol(CCDAudioQueueRecorderOutput)]) {
             audioOutput = (id<CCDAudioQueueRecorderOutput>)recorder.audioOutput;
         } else {
-            CCDAudioLogError(@"Get audio queue recorder output error");
+            CCDAudioLogE(@"Get audio queue recorder output error");
         }
         if ([audioOutput respondsToSelector:@selector(receiveAudio:size:)]) {
             [audioOutput receiveAudio:inBuffer->mAudioData size:inBuffer->mAudioDataByteSize];
@@ -72,12 +69,12 @@ void CCDAudioQueueInputBufferHandler(void *inUserData,
         if ([recorder isRunning]) {
             OSStatus status = AudioQueueEnqueueBuffer(inAQ, inBuffer, 0, NULL);
             if (status != noErr) {
-                CCDAudioLogError(@"Audio buffer re-enqueue the buffe error");
+                CCDAudioLogE(@"Audio buffer re-enqueue the buffe error");
             }
         }
         
     } @catch (NSException *exception) {
-        CCDAudioLogError(@"CCDAudioQueueInputBufferHandler: %@", exception);
+        CCDAudioLogE(@"CCDAudioQueueInputBufferHandler: %@", exception);
     } @finally {
         
     }

@@ -17,7 +17,7 @@
 #import <CCDAudio/CCDAVAudioRecorderOutput.h>
 
 #import <CCDAudio/CCDAQAudioRecorder.h>
-#import <CCDAudio/CCDAQAudioRecorderSTOutput.h>
+//#import <CCDAudio/CCDAQAudioRecorderSTOutput.h>
 #import <CCDAudio/CCDAQAudioRecorderMP3Output.h>
 
 #import <CCDAudio/CCDAUAudioRecorder.h>
@@ -78,14 +78,14 @@ CCDAudioPlayerDelegate
 
 - (void)doSoundTouchButtonAction
 {
-    if (self.recorder.isRunning) {
-        [self stopRecord];
-    } else {
-        CCDAQAudioRecorderSTOutput *output = [[CCDAQAudioRecorderSTOutput alloc] init];
-        output.pitchSemiTones = 8;
-        [self setupAQRecorder:output];
-        [self startRecord];
-    }
+//    if (self.recorder.isRunning) {
+//        [self stopRecord];
+//    } else {
+//        CCDAQAudioRecorderSTOutput *output = [[CCDAQAudioRecorderSTOutput alloc] init];
+//        output.pitchSemiTones = 8;
+//        [self setupAQRecorder:output];
+//        [self startRecord];
+//    }
 }
 
 - (void)doRecordButtonAction
@@ -129,30 +129,30 @@ CCDAudioPlayerDelegate
 
 - (void)playerWillStart:(id<CCDAudioPlayerProvider>)player
 {
-    CCDAudioLogError(@"playerWillStart");
+    CCDAudioLog(@"playerWillStart");
     
     NSError *error = nil;
     [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&error];
     if (error) {
-        CCDAudioLogError(@"playerWillStart error: %@", error);
+        CCDAudioLog(@"playerWillStart error: %@", error);
     }
     
     [[AVAudioSession sharedInstance] setActive:YES error:&error];
     if (error) {
-        CCDAudioLogError(@"playerWillStart error: %@", error);
+        CCDAudioLog(@"playerWillStart error: %@", error);
     }
 }
 
 - (void)playerDidStop:(id<CCDAudioPlayerProvider>)player
 {
-    CCDAudioLogError(@"playerDidStop: %@", player.audioInput.filePath);
+    CCDAudioLog(@"playerDidStop: %@", player.audioInput.filePath);
     
     [[AVAudioSession sharedInstance] setActive:NO error:nil];
 }
 
 - (void)playerWithError:(NSError *)error
 {
-    CCDAudioLogError(@"playerWithError error: %@", error);
+    CCDAudioLog(@"playerWithError error: %@", error);
 }
 
 #pragma mark - meter
@@ -245,36 +245,36 @@ CCDAudioPlayerDelegate
 
 - (void)recorderWillStart:(id<CCDAudioRecorderProvider>)recorder
 {
-    CCDAudioLogError(@"recorderWillStart");
+    CCDAudioLog(@"recorderWillStart");
     
     NSError *error = nil;
     [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:&error];
     if (error) {
-        CCDAudioLogError(@"recorderWillStart error: %@", error);
+        CCDAudioLog(@"recorderWillStart error: %@", error);
     }
     
     [[AVAudioSession sharedInstance] setActive:YES error:&error];
     if (error) {
-        CCDAudioLogError(@"recorderWillStart error: %@", error);
+        CCDAudioLog(@"recorderWillStart error: %@", error);
     }
 }
 
 - (void)recorderDidStart:(id<CCDAudioRecorderProvider>)recorder
 {
-    CCDAudioLogError(@"recorderDidStart");
+    CCDAudioLog(@"recorderDidStart");
 }
 
 - (void)recorderDidStop:(id<CCDAudioRecorderProvider>)recorder
 {
     self.filePath = recorder.audioOutput.filePath;
-    CCDAudioLogError(@"recorderDidStop: %@", self.filePath);
+    CCDAudioLog(@"recorderDidStop: %@", self.filePath);
     
     [[AVAudioSession sharedInstance] setActive:NO error:nil];
 }
 
 - (void)recorderWithError:(NSError *)error
 {
-    CCDAudioLogError(@"recorderWithError: %@", error);
+    CCDAudioLog(@"recorderWithError: %@", error);
 }
 
 @end

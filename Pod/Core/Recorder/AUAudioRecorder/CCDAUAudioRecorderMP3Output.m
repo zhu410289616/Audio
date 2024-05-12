@@ -16,7 +16,7 @@
         AudioStreamBasicDescription des;
         des.mSampleRate = 44100;
         des.mFormatID = kAudioFormatLinearPCM;
-        des.mFormatFlags = kAudioFormatFlagIsSignedInteger;
+        des.mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsNonInterleaved;
         des.mFramesPerPacket = 1;
         des.mChannelsPerFrame = 1;
         des.mBitsPerChannel = 16;

@@ -65,16 +65,23 @@ typedef CCDAudioQueueInputData *CCDAudioQueueInputDataRef;
 #define CCDAudioLog(format, ...)
 #endif
 
-#define CCDAudioLogError(...) do { NSLog(__VA_ARGS__); }while(0)
+#define CCDAudioLogD(...) do { NSLog(__VA_ARGS__); }while(0)
+#define CCDAudioLogE(...) do { NSLog(__VA_ARGS__); }while(0)
+#define CCDAudioLogI(...) do { NSLog(__VA_ARGS__); }while(0)
+#define CCDAudioLogV(...) do { NSLog(__VA_ARGS__); }while(0)
+#define CCDAudioLogW(...) do { NSLog(__VA_ARGS__); }while(0)
 
 #pragma mark - error
 
 FOUNDATION_EXPORT NSString * const CCDAudioErrorDomain;
 FOUNDATION_EXPORT NSError * CCDAudioMakeError(NSInteger code, NSString *msg);
 
-#define CCDAudioCheckError(errorCode, errorDescription) do { \
-CCDAudioLogError(@"CCDAudio: %@", errorDescription); \
-if (error) { *error = [NSError errorWithDomain:CCDAudioErrorDomain code:errorCode userInfo:@{NSLocalizedDescriptionKey: errorDescription}]; }}while(0)
+#define CCDAudioCheckError(errorCode, errorDescription) \
+do { \
+CCDAudioLogE(@"CCDAudio: %@", errorDescription); \
+if (error) { *error = [NSError errorWithDomain:CCDAudioErrorDomain code:errorCode userInfo:@{NSLocalizedDescriptionKey: errorDescription}]; \
+} \
+} while(0)
 
 @interface CCDAudioDefines : NSObject
 
