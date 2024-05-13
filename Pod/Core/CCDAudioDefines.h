@@ -57,19 +57,26 @@ typedef CCDAudioQueueInputData *CCDAudioQueueInputDataRef;
 
 #pragma mark - log
 
-#define CCDAdudioDebug
-
-#ifdef CCDAdudioDebug
-#define CCDAudioLog(format, ...) NSLog(format, ## __VA_ARGS__)
+#ifdef DEBUG
+#define CCDAudioLog(frmt, ...) do { NSLog(frmt, ## __VA_ARGS__); } while(0)
 #else
-#define CCDAudioLog(format, ...)
+#define CCDAudioLog(frmt, ...)
 #endif
 
-#define CCDAudioLogD(...) do { NSLog(__VA_ARGS__); }while(0)
-#define CCDAudioLogE(...) do { NSLog(__VA_ARGS__); }while(0)
-#define CCDAudioLogI(...) do { NSLog(__VA_ARGS__); }while(0)
-#define CCDAudioLogV(...) do { NSLog(__VA_ARGS__); }while(0)
-#define CCDAudioLogW(...) do { NSLog(__VA_ARGS__); }while(0)
+#if __has_include(<CCDBucket/CCDLogger.h>)
+#import <CCDBucket/CCDLogger.h>
+#define CCDAudioLogD(frmt, ...) do { DDLogDebug(frmt, ## __VA_ARGS__); } while(0)
+#define CCDAudioLogE(frmt, ...) do { DDLogError(frmt, ## __VA_ARGS__); } while(0)
+#define CCDAudioLogI(frmt, ...) do { DDLogInfo(frmt, ## __VA_ARGS__); } while(0)
+#define CCDAudioLogV(frmt, ...) do { DDLogVerbose(frmt, ## __VA_ARGS__); } while(0)
+#define CCDAudioLogW(frmt, ...) do { DDLogWarn(frmt, ## __VA_ARGS__); } while(0)
+#else
+#define CCDAudioLogD(frmt, ...) do { CCDAudioLog(frmt, ## __VA_ARGS__); } while(0)
+#define CCDAudioLogE(frmt, ...) do { CCDAudioLog(frmt, ## __VA_ARGS__); } while(0)
+#define CCDAudioLogI(frmt, ...) do { CCDAudioLog(frmt, ## __VA_ARGS__); } while(0)
+#define CCDAudioLogV(frmt, ...) do { CCDAudioLog(frmt, ## __VA_ARGS__); } while(0)
+#define CCDAudioLogW(frmt, ...) do { CCDAudioLog(frmt, ## __VA_ARGS__); } while(0)
+#endif
 
 #pragma mark - error
 

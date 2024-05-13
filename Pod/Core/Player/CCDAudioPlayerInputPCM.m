@@ -91,10 +91,10 @@
     void *buffer = malloc(maxSize);
     NSInteger readSize = [self.inputStream read:buffer maxLength:maxSize];
     
-#ifdef DEBUG
-//    CCDAudioLogD(@"read size: %@", @(readSize));
-//    NSData *bufferData = [NSData dataWithBytes:buffer length:readSize];
-//    CCDAudioLogD(@"buffer data: %@", bufferData);
+#ifdef DEBUG1
+    CCDAudioLogD(@"read size: %@", @(readSize));
+    NSData *bufferData = [NSData dataWithBytes:buffer length:readSize];
+    CCDAudioLogD(@"buffer data: %@", bufferData);
 #endif
     
     !callback ?: callback(buffer, readSize);

@@ -21,12 +21,6 @@
 @synthesize isRunning;
 @dynamic volume;
 
-- (void)dealloc
-{
-    OSStatus status = AudioOutputUnitStop(_audioUnit);
-    CCDAudioLogD(@"AudioOutputUnitStop: %@", @(status));
-}
-
 #pragma mark - CCDAudioPlayerProvider
 
 - (void)setVolume:(float)volume

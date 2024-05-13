@@ -205,7 +205,7 @@ void CCDAudioQueueInputBufferHandler(void *inUserData,
     UInt32 len = sizeof(meters);
     OSStatus status = AudioQueueGetProperty(_audioQueue, kAudioQueueProperty_CurrentLevelMeterDB, meters, &len);
     if (status) {
-        CCDAudioLog(@"AudioQueueGetProperty(CurrentLevelMeter) returned %@", @(status));
+        CCDAudioLogE(@"AudioQueueGetProperty(CurrentLevelMeter) returned %@", @(status));
     }
     return meters[0].mAveragePower;
 }
@@ -243,7 +243,7 @@ void CCDAudioQueueInputBufferHandler(void *inUserData,
         }
     }
     @catch (NSException *exception) {
-        CCDAudioLog(@"computeRecordBufferSize exception: %@", exception.description);
+        CCDAudioLogE(@"computeRecordBufferSize exception: %@", exception.description);
     }
     
     return bytes;

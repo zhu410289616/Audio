@@ -6,6 +6,8 @@
 //
 
 #import "AppDelegate.h"
+#import <CCDBucket/CCDLogger.h>
+#import <CCDBucket/CCDDamServer.h>
 
 @interface AppDelegate ()
 
@@ -13,9 +15,37 @@
 
 @implementation AppDelegate
 
+- (BOOL)application:(UIApplication *)application willFinishLaunchingWithOptions:(NSDictionary<UIApplicationLaunchOptionsKey,id> *)launchOptions {
+    //log
+    CCDTraceLogger *traceLogger = [[CCDTraceLogger alloc] init];
+    traceLogger.logFormatter = [[CCDTraceLogFormatter alloc] init];
+    [DDLog addLogger:traceLogger];
+    [DDLog addLogger:[DDTTYLogger sharedInstance]];
+    if (@available(iOS 10.0, *)) {
+        [DDLog addLogger:[DDOSLogger sharedInstance]];
+    } else {
+        // Fallback on earlier versions
+        [DDLog addLogger:[DDASLLogger sharedInstance]];
+    }
+    DDLogInfo(@"[willFinishLaunchingWithOptions]: DDLog init");
+    return YES;
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    //dam server
+//    [[CCDDamServer sharedInstance] addHandlerWith:^BOOL(NSURLRequest *request) {
+//        if ([request.URL.absoluteString hasSuffix:@"test"]) {
+//            return NO;
+//        }
+//        return YES;
+//    }];
+    [[CCDDamServer sharedInstance] setEnabled:YES];
+    [[CCDDamServer sharedInstance] start];
+    DDLogInfo(@"浏览器访问 http://127.0.0.1:20229/log 查看日志");
+    
+    DDLogInfo(@"[didFinishLaunchingWithOptions]: dam server init");
+    
     return YES;
 }
 

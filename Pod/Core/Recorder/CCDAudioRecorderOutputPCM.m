@@ -100,7 +100,7 @@
 
 - (void)write:(void *)bytes maxSize:(NSInteger)maxSize
 {
-#ifdef DEBUG
+#ifdef DEBUG1
     CCDAudioLogD(@"write size: %@", @(maxSize));
     NSData *bufferData = [NSData dataWithBytes:bytes length:maxSize];
     CCDAudioLogD(@"buffer data: %@", bufferData);
