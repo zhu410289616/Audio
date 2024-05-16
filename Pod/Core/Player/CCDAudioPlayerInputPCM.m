@@ -86,7 +86,7 @@
     [self.inputStream close];
 }
 
-- (void)read:(CCDAudioDataCallback)callback maxSize:(NSInteger)maxSize
+- (void)read:(CCDAudioPlayerInCallback)callback maxSize:(NSInteger)maxSize
 {
     void *buffer = malloc(maxSize);
     NSInteger readSize = [self.inputStream read:buffer maxLength:maxSize];

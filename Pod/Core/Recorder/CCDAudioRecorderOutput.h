@@ -33,7 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)end;
 
 - (void)write:(AudioBufferList *)bufferList;
-- (void)write:(void *)bytes maxSize:(NSInteger)maxSize;
 
 @end
 
