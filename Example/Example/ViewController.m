@@ -22,6 +22,7 @@
 #import <CCDAudio/CCDAUAudioRecorder.h>
 #import <CCDAudio/CCDAudioRecorderOutputPCM.h>
 #import <CCDAudio/CCDAudioRecorderOutputMP3.h>
+#import <CCDAudio/CCDAudioRecorderOutputM4A.h>
 
 #import <CCDAudio/CCDAQAudioRecorder.h>
 //#import <CCDAudio/CCDAQAudioRecorderSTOutput.h>
@@ -152,10 +153,15 @@ CCDAudioPlayerDelegate
         [self stopRecord];
         [self.recorderView.auRecordButton setTitle:@"audio record start" forState:UIControlStateNormal];
     } else {
+        // pcm
 //        CCDAudioRecorderOutputPCM *output = [[CCDAudioRecorderOutputPCM alloc] init];
 //        output.audioFormat = [self pcmAudioFormat:44100];
-        CCDAudioRecorderOutputMP3 *output = [[CCDAudioRecorderOutputMP3 alloc] init];
-        [output setupAudioFormat:44100];
+        // mp3
+//        CCDAudioRecorderOutputMP3 *output = [[CCDAudioRecorderOutputMP3 alloc] init];
+//        [output setupAudioFormat:44100];
+        // m4a
+        CCDAudioRecorderOutputM4A *output = [[CCDAudioRecorderOutputM4A alloc] init];
+        
         [self setupAURecorder:output];
         [self startRecord];
         [self.recorderView.auRecordButton setTitle:@"audio record stop" forState:UIControlStateNormal];
