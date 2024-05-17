@@ -6,7 +6,9 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "CCDAudioRecordMeterView.h"
+#import <CCDAudio/CCDAudioRecordMeterView.h>
+#import <CCDAudio/CCDAudioSpectrumView.h>
+#import <SCSiriWaveformView/SCSiriWaveformView.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -17,6 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) UIButton *recordButton;
 @property (nonatomic, strong) UIButton *mp3RecordButton;
 @property (nonatomic, strong) UIButton *auRecordButton;
+@property (nonatomic, strong) SCSiriWaveformView *waveView;
+@property (nonatomic, strong) CCDAudioSpectrumView *spectrumView;
 @property (nonatomic, strong) CCDAudioRecordMeterView *meterView;
 
 @end

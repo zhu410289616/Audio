@@ -23,7 +23,7 @@
     self = [super init];
     if (self) {
         _audioPath = [NSTemporaryDirectory() stringByAppendingString:@"record.pcm"];
-        [self setupAudioFormat];
+        [self setupAudioFormat:16000];
     }
     return self;
 }
@@ -33,18 +33,18 @@
     if (self = [super init]) {
         _audioPath = path;
         _outputStream = [[NSOutputStream alloc] initToFileAtPath:path append:NO];
-        [self setupAudioFormat];
+        [self setupAudioFormat:16000];
     }
     return self;
 }
 
 #pragma mark -
 
-- (void)setupAudioFormat
+- (void)setupAudioFormat:(NSInteger)sampleRate
 {
     AudioStreamBasicDescription audioFormat;
     //采样率，每秒钟抽取声音样本次数。根据奈奎斯特采样理论，为了保证声音不失真，采样频率应该在40kHz左右
-    audioFormat.mSampleRate = 16000;
+    audioFormat.mSampleRate = sampleRate;
     audioFormat.mFormatID = kAudioFormatLinearPCM; //音频格式
 
     //详细描述了音频数据的数字格式，整数还是浮点数，大端还是小端
@@ -90,6 +90,8 @@
 
 - (void)write:(AudioBufferList *)bufferList
 {
+    !self.pcmCallback ?: self.pcmCallback(bufferList);
+    
     NSInteger channels = bufferList->mNumberBuffers;
     for (NSInteger i=0; i<channels; i++) {
         UInt32 dataSize = bufferList->mBuffers[i].mDataByteSize;

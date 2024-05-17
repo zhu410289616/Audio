@@ -21,6 +21,7 @@
 
 #import <CCDAudio/CCDAUAudioRecorder.h>
 #import <CCDAudio/CCDAudioRecorderOutputPCM.h>
+#import <CCDAudio/CCDAudioRecorderOutputMP3.h>
 
 #import <CCDAudio/CCDAQAudioRecorder.h>
 //#import <CCDAudio/CCDAQAudioRecorderSTOutput.h>
@@ -151,8 +152,10 @@ CCDAudioPlayerDelegate
         [self stopRecord];
         [self.recorderView.auRecordButton setTitle:@"audio record start" forState:UIControlStateNormal];
     } else {
-        CCDAudioRecorderOutputPCM *output = [[CCDAudioRecorderOutputPCM alloc] init];
-        output.audioFormat = [self pcmAudioFormat:44100];
+//        CCDAudioRecorderOutputPCM *output = [[CCDAudioRecorderOutputPCM alloc] init];
+//        output.audioFormat = [self pcmAudioFormat:44100];
+        CCDAudioRecorderOutputMP3 *output = [[CCDAudioRecorderOutputMP3 alloc] init];
+        [output setupAudioFormat:44100];
         [self setupAURecorder:output];
         [self startRecord];
         [self.recorderView.auRecordButton setTitle:@"audio record stop" forState:UIControlStateNormal];
@@ -240,6 +243,10 @@ CCDAudioPlayerDelegate
         return;
     }
     float averagePower = [self.recorder averagePowerWithChannel:0];
+    
+    CGFloat normalizedValue = [self normalizedPowerLevelFromDecibels:averagePower];
+    [self.recorderView.waveView updateWithLevel:normalizedValue];
+    
     float ALPHA = 0.02f;
     float level = pow(10, (ALPHA *averagePower));
     if (level <= 0.05f) {
@@ -248,6 +255,15 @@ CCDAudioPlayerDelegate
         level = 1.0f;
     }
     [self.recorderView.meterView updateLevelMeter:level];
+}
+
+- (CGFloat)normalizedPowerLevelFromDecibels:(CGFloat)decibels
+{
+    if (decibels < -60.0f || decibels == 0.0f) {
+        return 0.0f;
+    }
+    
+    return powf((powf(10.0f, 0.05f * decibels) - powf(10.0f, 0.05f * -60.0f)) * (1.0f / (1.0f - powf(10.0f, 0.05f * -60.0f))), 1.0f / 2.0f);
 }
 
 #pragma mark - recorder

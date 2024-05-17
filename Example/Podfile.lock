@@ -67,6 +67,7 @@ PODS:
   - libextobjc/UmbrellaHeader (0.6)
   - MarqueeLabel-ObjC (3.3.0)
   - Masonry (1.1.0)
+  - SCSiriWaveformView (1.1.1)
 
 DEPENDENCIES:
   - AFNetworking (~> 4.0.1)
@@ -77,6 +78,7 @@ DEPENDENCIES:
   - CocoaLumberjack (~> 3.7.4)
   - libextobjc (~> 0.6)
   - Masonry (~> 1.1.0)
+  - SCSiriWaveformView (= 1.1.1)
 
 SPEC REPOS:
   trunk:
@@ -87,6 +89,7 @@ SPEC REPOS:
     - libextobjc
     - MarqueeLabel-ObjC
     - Masonry
+    - SCSiriWaveformView
 
 EXTERNAL SOURCES:
   CCDAudio:
@@ -110,7 +113,8 @@ SPEC CHECKSUMS:
   libextobjc: aed8b7d2b07f511c1a7ecaacb33ea03e327c69b7
   MarqueeLabel-ObjC: 696eaa82e4fcc7fb53e4fdf37ac138f03bf022d6
   Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
+  SCSiriWaveformView: 15b9dd6f94c7536e2032b34a35c6ff74d38c7411
 
-PODFILE CHECKSUM: bb7729f35bb09e608d38a6fd174a76501eac9c52
+PODFILE CHECKSUM: 1ab6c2f59497856cfbf1075d365f217966742784
 
 COCOAPODS: 1.11.3

@@ -38,6 +38,17 @@
         [_auRecordButton setTitle:@"AU record" forState:UIControlStateNormal];
         [self addSubview:_auRecordButton];
         
+        _waveView = [[SCSiriWaveformView alloc] init];
+        _waveView.backgroundColor = [UIColor clearColor];
+        _waveView.waveColor = [UIColor whiteColor];
+        _waveView.primaryWaveLineWidth = 3.0f;
+        _waveView.secondaryWaveLineWidth = 1.0f;
+        [self addSubview:_waveView];
+        
+        _spectrumView = [[CCDAudioSpectrumView alloc] init];
+        _spectrumView.backgroundColor = [UIColor clearColor];
+        [self addSubview:_spectrumView];
+        
         _meterView = [[CCDAudioRecordMeterView alloc] initWithFrame:CGRectZero];
         [self addSubview:_meterView];
         
@@ -71,9 +82,21 @@
             make.size.mas_equalTo(CGSizeMake(150, 50));
         }];
         
+        [_waveView mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.leading.trailing.equalTo(self);
+            make.top.equalTo(_auRecordButton.mas_bottom).offset(5);
+            make.height.equalTo(@(100));
+        }];
+        
+        [_spectrumView mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.leading.trailing.equalTo(self);
+            make.top.equalTo(_waveView.mas_bottom).offset(5);
+            make.height.equalTo(@(100));
+        }];
+        
         [_meterView mas_remakeConstraints:^(MASConstraintMaker *make) {
             make.leading.trailing.equalTo(self);
-            make.bottom.equalTo(self);
+            make.top.equalTo(_spectrumView.mas_bottom).offset(5);
             make.height.equalTo(@(200));
         }];
         
