@@ -32,10 +32,13 @@
 
 @interface ViewController ()
 <
+UITableViewDelegate,
+UITableViewDataSource,
 CCDAudioRecorderDelegate,
 CCDAudioPlayerDelegate
 >
 
+@property (nonatomic, strong) NSMutableArray *menuList;
 @property (nonatomic, strong) CCDRecorderView *recorderView;
 
 @property (nonatomic, strong) id<CCDAudioRecorderProvider> recorder;
@@ -48,6 +51,37 @@ CCDAudioPlayerDelegate
 
 @implementation ViewController
 
+- (void)loadView {
+    [super loadView];
+    
+    self.menuList = @[].mutableCopy;
+    NSMutableDictionary *menuDic = nil;
+    
+    menuDic = @{
+        @"menu_id": @(1),
+        @"content": @"play"
+    }.mutableCopy;
+    [self.menuList addObject:menuDic.mutableCopy];
+    
+    menuDic = @{
+        @"menu_id": @(101),
+        @"content": @"AVAudioRecorder"
+    }.mutableCopy;
+    [self.menuList addObject:menuDic];
+    
+    menuDic = @{
+        @"menu_id": @(102),
+        @"content": @"AQAudioRecorder"
+    }.mutableCopy;
+    [self.menuList addObject:menuDic];
+    
+    menuDic = @{
+        @"menu_id": @(103),
+        @"content": @"AUAudioRecorder"
+    }.mutableCopy;
+    [self.menuList addObject:menuDic];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -59,11 +93,53 @@ CCDAudioPlayerDelegate
         make.size.equalTo(self.view);
     }];
     
-    [self.recorderView.playButton addTarget:self action:@selector(doPlayButtonAction) forControlEvents:UIControlEventTouchUpInside];
-    [self.recorderView.soundTouchButton addTarget:self action:@selector(doSoundTouchButtonAction) forControlEvents:UIControlEventTouchUpInside];
-    [self.recorderView.recordButton addTarget:self action:@selector(doRecordButtonAction) forControlEvents:UIControlEventTouchUpInside];
-    [self.recorderView.mp3RecordButton addTarget:self action:@selector(doMp3RecordButtonAction) forControlEvents:UIControlEventTouchUpInside];
-    [self.recorderView.auRecordButton addTarget:self action:@selector(doAURecordButtonAction) forControlEvents:UIControlEventTouchUpInside];
+    self.recorderView.tableView.delegate = self;
+    self.recorderView.tableView.dataSource = self;
+    Class cellClass = [UITableViewCell class];
+    NSString *identifier = @"CCDTestTableViewCell";//NSStringFromClass(cellClass);
+    [self.recorderView.tableView registerClass:cellClass forCellReuseIdentifier:identifier];
+    [self.recorderView.tableView reloadData];
+}
+
+#pragma mark - UITableViewDelegate
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    NSMutableDictionary *menuDic = [self.menuList objectAtIndex:indexPath.row];
+    NSInteger menuId = [menuDic[@"menu_id"] longLongValue];
+    switch (menuId) {
+        case 1:
+            [self doPlayButtonAction];
+            break;
+        case 101:
+            [self doAVRecordButtonAction];
+            break;
+        case 102:
+            [self doAQRecordButtonAction];
+            break;
+        case 103:
+            [self doAURecordButtonAction];
+            break;
+        default:
+            break;
+    }//switch
+}
+
+#pragma mark - UITableViewDataSource
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return self.menuList.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSDictionary *menuDic = [self.menuList objectAtIndex:indexPath.row];
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CCDTestTableViewCell"];
+    cell.selectionStyle = UITableViewCellSelectionStyleGray;
+    cell.textLabel.text = menuDic[@"content"];
+    return cell;
 }
 
 #pragma mark - audio format
@@ -100,7 +176,7 @@ CCDAudioPlayerDelegate
 {
     if (self.player.isRunning) {
         [self.player stop];
-        [self.recorderView.playButton setTitle:@"play" forState:UIControlStateNormal];
+        [self.recorderView updateStateInfo:@"player stop"];
     } else {
 //        CCDAVAudioPlayerInput *input = [[CCDAVAudioPlayerInput alloc] init];
 //        input.filePath = self.filePath;
@@ -116,30 +192,32 @@ CCDAudioPlayerDelegate
         if (self.filePath.length > 0) {
             audioURL = [NSURL fileURLWithPath:self.filePath];
         }
-        CCDAudioPlayerInputPCM *input = [[CCDAudioPlayerInputPCM alloc] initWithURL:audioURL];
-        input.audioFormat = [self pcmAudioFormat:sampleRate];
-        self.player = [[CCDAUAudioPlayer alloc] init];
+        
+        NSString *ext = self.filePath.pathExtension;
+        id<CCDAudioPlayerInput> audioInput = nil;
+        if ([ext isEqualToString:@"pcm"]) {
+            CCDAudioPlayerInputPCM *input = [[CCDAudioPlayerInputPCM alloc] initWithURL:audioURL];
+            input.audioFormat = [self pcmAudioFormat:sampleRate];
+            audioInput = input;
+            self.player = [[CCDAUAudioPlayer alloc] init];
+        } else if ([ext isEqualToString:@"mp3"]
+                   || [ext isEqualToString:@"m4a"]) {
+            CCDAVAudioPlayerInput *input = [[CCDAVAudioPlayerInput alloc] init];
+            input.audioPath = self.filePath;
+            audioInput = input;
+            self.player = [[CCDAVAudioPlayer alloc] init];
+        }
         
         self.player.delegate = self;
-        self.player.audioInput = input;
+        self.player.audioInput = audioInput;
         if (![self.player prepare]) {
-            CCDAudioLogE(@"audio unit prepare failed");
+            CCDAudioLogE(@"player prepare failed");
+            [self.recorderView updateStateInfo:@"player prepare failed"];
+            return;
         }
         [self.player play];
-        [self.recorderView.playButton setTitle:@"stop" forState:UIControlStateNormal];
+        [self.recorderView updateStateInfo:@"player start"];
     }
-}
-
-- (void)doSoundTouchButtonAction
-{
-//    if (self.recorder.isRunning) {
-//        [self stopRecord];
-//    } else {
-//        CCDAQAudioRecorderSTOutput *output = [[CCDAQAudioRecorderSTOutput alloc] init];
-//        output.pitchSemiTones = 8;
-//        [self setupAQRecorder:output];
-//        [self startRecord];
-//    }
 }
 
 - (void)doRecordButtonAction
@@ -151,7 +229,7 @@ CCDAudioPlayerDelegate
 {
     if (self.recorder.isRunning) {
         [self stopRecord];
-        [self.recorderView.auRecordButton setTitle:@"audio record start" forState:UIControlStateNormal];
+        [self.recorderView updateStateInfo:@"AudioUnit AudioRecorder stop"];
     } else {
         // pcm
 //        CCDAudioRecorderOutputPCM *output = [[CCDAudioRecorderOutputPCM alloc] init];
@@ -164,18 +242,20 @@ CCDAudioPlayerDelegate
         
         [self setupAURecorder:output];
         [self startRecord];
-        [self.recorderView.auRecordButton setTitle:@"audio record stop" forState:UIControlStateNormal];
+        [self.recorderView updateStateInfo:@"AudioUnit AudioRecorder start"];
     }
 }
 
-- (void)doMp3RecordButtonAction
+- (void)doAQRecordButtonAction
 {
     if (self.recorder.isRunning) {
         [self stopRecord];
+        [self.recorderView updateStateInfo:@"AudioQueue AudioRecorder stop"];
     } else {
         CCDAQAudioRecorderMP3Output *output = [[CCDAQAudioRecorderMP3Output alloc] init];
         [self setupAQRecorder:output];
         [self startRecord];
+        [self.recorderView updateStateInfo:@"AudioQueue AudioRecorder start"];
     }
 }
 
@@ -183,9 +263,11 @@ CCDAudioPlayerDelegate
 {
     if (self.recorder.isRunning) {
         [self stopRecord];
+        [self.recorderView updateStateInfo:@"AVAudioRecorder stop"];
     } else {
         [self setupAVRecorder];
         [self startRecord];
+        [self.recorderView updateStateInfo:@"AVAudioRecorder start"];
     }
 }
 
@@ -193,31 +275,35 @@ CCDAudioPlayerDelegate
 
 - (void)playerWillStart:(id<CCDAudioPlayerProvider>)player
 {
-    CCDAudioLog(@"playerWillStart");
+    CCDAudioLogD(@"playerWillStart");
     
     NSError *error = nil;
     [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&error];
     if (error) {
-        CCDAudioLog(@"playerWillStart error: %@", error);
+        CCDAudioLogE(@"playerWillStart error: %@", error);
     }
     
     [[AVAudioSession sharedInstance] setActive:YES error:&error];
     if (error) {
-        CCDAudioLog(@"playerWillStart error: %@", error);
+        CCDAudioLogE(@"playerWillStart error: %@", error);
     }
 }
 
 - (void)playerDidStop:(id<CCDAudioPlayerProvider>)player
 {
-    CCDAudioLog(@"playerDidStop: %@", player.audioInput.audioPath);
+    CCDAudioLogD(@"playerDidStop: %@", player.audioInput.audioPath);
     
+    NSString *info = [NSString stringWithFormat:@"playerDidStop: %@", player.audioInput.audioPath];
+    [self.recorderView updateStateInfo:info];
     self.filePath = nil;
     [[AVAudioSession sharedInstance] setActive:NO error:nil];
 }
 
 - (void)playerWithError:(NSError *)error
 {
-    CCDAudioLog(@"playerWithError error: %@", error);
+    CCDAudioLogD(@"playerWithError: %@", error);
+    NSString *info = [NSString stringWithFormat:@"playerWithError: %@", error];
+    [self.recorderView updateStateInfo:info];
 }
 
 #pragma mark - meter
@@ -238,7 +324,7 @@ CCDAudioPlayerDelegate
     if (@available(iOS 10.0, *)) {
         self.meterTimer.preferredFramesPerSecond = 10;
     } else {
-        self.meterTimer.frameInterval = 6;
+//        self.meterTimer.frameInterval = 6;
     }
     [self.meterTimer addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
 }

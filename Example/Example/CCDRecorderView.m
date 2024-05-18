@@ -15,35 +15,17 @@
     if (self) {
         self.backgroundColor = [UIColor lightGrayColor];
         
-        _playButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [_playButton setTitle:@"play" forState:UIControlStateNormal];
-        [self addSubview:_playButton];
+        _tableView = [[UITableView alloc] init];
+        _tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
+        _tableView.tableFooterView = [[UIView alloc] init];
+        [self addSubview:_tableView];
         
-        _soundTouchButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [_soundTouchButton setTitle:@"sound touch" forState:UIControlStateNormal];
-        [self addSubview:_soundTouchButton];
-        
-        _recordButton = [UIButton buttonWithType:UIButtonTypeCustom];
-//        _recordButton.frame = CGRectMake(20, 170, 150, 50);
-        [_recordButton setTitle:@"record" forState:UIControlStateNormal];
-        [self addSubview:_recordButton];
-        
-        _mp3RecordButton = [UIButton buttonWithType:UIButtonTypeCustom];
-//        _mp3RecordButton.frame = CGRectMake(20, 230, 150, 50);
-        [_mp3RecordButton setTitle:@"mp3 record" forState:UIControlStateNormal];
-        [self addSubview:_mp3RecordButton];
-        
-        _auRecordButton = [UIButton buttonWithType:UIButtonTypeCustom];
-//        _auRecordButton.frame = CGRectMake(20, 280, 150, 50);
-        [_auRecordButton setTitle:@"AU record" forState:UIControlStateNormal];
-        [self addSubview:_auRecordButton];
-        
-        _waveView = [[SCSiriWaveformView alloc] init];
-        _waveView.backgroundColor = [UIColor clearColor];
-        _waveView.waveColor = [UIColor whiteColor];
-        _waveView.primaryWaveLineWidth = 3.0f;
-        _waveView.secondaryWaveLineWidth = 1.0f;
-        [self addSubview:_waveView];
+        _stateLabel = [[UILabel alloc] init];
+        _stateLabel.textColor = [UIColor whiteColor];
+        _stateLabel.text = @"info";
+        _stateLabel.numberOfLines = 0;
+        _stateLabel.adjustsFontSizeToFitWidth = YES;
+        [self addSubview:_stateLabel];
         
         _spectrumView = [[CCDAudioSpectrumView alloc] init];
         _spectrumView.backgroundColor = [UIColor clearColor];
@@ -52,52 +34,42 @@
         _meterView = [[CCDAudioRecordMeterView alloc] initWithFrame:CGRectZero];
         [self addSubview:_meterView];
         
-        [_playButton mas_remakeConstraints:^(MASConstraintMaker *make) {
-            make.leading.equalTo(self).offset(20);
-            make.top.equalTo(self).offset(50);
-            make.size.mas_equalTo(CGSizeMake(150, 50));
+        _waveView = [[SCSiriWaveformView alloc] init];
+        _waveView.backgroundColor = [UIColor clearColor];
+        _waveView.waveColor = [UIColor whiteColor];
+        _waveView.primaryWaveLineWidth = 3.0f;
+        _waveView.secondaryWaveLineWidth = 1.0f;
+        [self addSubview:_waveView];
+        
+        [_tableView mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.leading.trailing.equalTo(self);
+            make.top.equalTo(self);
+            make.height.equalTo(@(300));
         }];
         
-        [_soundTouchButton mas_remakeConstraints:^(MASConstraintMaker *make) {
-            make.leading.equalTo(self).offset(20);
-            make.top.equalTo(_playButton.mas_bottom).offset(20);
-            make.size.mas_equalTo(CGSizeMake(150, 50));
-        }];
-        
-        [_recordButton mas_remakeConstraints:^(MASConstraintMaker *make) {
-            make.leading.equalTo(self).offset(20);
-            make.top.equalTo(_soundTouchButton.mas_bottom).offset(20);
-            make.size.mas_equalTo(CGSizeMake(150, 50));
-        }];
-        
-        [_mp3RecordButton mas_remakeConstraints:^(MASConstraintMaker *make) {
-            make.leading.equalTo(self).offset(20);
-            make.top.equalTo(_recordButton.mas_bottom).offset(10);
-            make.size.mas_equalTo(CGSizeMake(150, 50));
-        }];
-        
-        [_auRecordButton mas_remakeConstraints:^(MASConstraintMaker *make) {
-            make.leading.equalTo(self).offset(20);
-            make.top.equalTo(_mp3RecordButton.mas_bottom).offset(10);
-            make.size.mas_equalTo(CGSizeMake(150, 50));
+        [_stateLabel mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.leading.equalTo(self).offset(5);
+            make.trailing.equalTo(self).offset(-5);
+            make.top.equalTo(_tableView.mas_bottom).offset(5);
+            make.height.equalTo(@(60));
         }];
         
         [_waveView mas_remakeConstraints:^(MASConstraintMaker *make) {
             make.leading.trailing.equalTo(self);
-            make.top.equalTo(_auRecordButton.mas_bottom).offset(5);
-            make.height.equalTo(@(100));
+            make.bottom.equalTo(self).offset(0);
+            make.height.equalTo(@(80));
         }];
         
         [_spectrumView mas_remakeConstraints:^(MASConstraintMaker *make) {
             make.leading.trailing.equalTo(self);
-            make.top.equalTo(_waveView.mas_bottom).offset(5);
+            make.bottom.equalTo(_waveView.mas_top).offset(0);
             make.height.equalTo(@(100));
         }];
         
         [_meterView mas_remakeConstraints:^(MASConstraintMaker *make) {
             make.leading.trailing.equalTo(self);
-            make.top.equalTo(_spectrumView.mas_bottom).offset(5);
-            make.height.equalTo(@(200));
+            make.bottom.equalTo(_spectrumView.mas_top).offset(0);
+            make.height.equalTo(@(100));
         }];
         
         _meterView.numOfLevels = 50;
@@ -105,6 +77,11 @@
         [_meterView resetLevelData];
     }
     return self;
+}
+
+- (void)updateStateInfo:(NSString *)info
+{
+    self.stateLabel.text = info;
 }
 
 @end
