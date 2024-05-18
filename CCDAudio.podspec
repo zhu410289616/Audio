@@ -49,6 +49,11 @@ Pod::Spec.new do |spec|
     cs.dependency "MarqueeLabel-ObjC"
   end
   
+  spec.subspec "Effect" do |cs|
+    cs.source_files = "Pod/Effect/**/*.{h,c,m,mm}"
+    cs.libraries = "c"
+  end
+  
 #  spec.subspec "Controller" do |cs|
 #    cs.source_files = "Cicada/Audio/**/*"
 #    cs.vendored_libraries = 'Cicada/Audio/Frameworks/**/*.a'

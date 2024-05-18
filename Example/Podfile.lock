@@ -16,6 +16,7 @@ PODS:
     - AFNetworking/NSURLSession
   - CCDAudio/Core (0.0.1):
     - libextobjc/EXTScope
+  - CCDAudio/Effect (0.0.1)
   - CCDAudio/UIKit (0.0.1):
     - MarqueeLabel-ObjC
   - CCDBucket/Core (0.0.2):
@@ -72,6 +73,7 @@ PODS:
 DEPENDENCIES:
   - AFNetworking (~> 4.0.1)
   - CCDAudio/Core (from `../CCDAudio.podspec`)
+  - CCDAudio/Effect (from `../CCDAudio.podspec`)
   - CCDAudio/UIKit (from `../CCDAudio.podspec`)
   - CCDBucket/Core (from `https://github.com/zhu410289616/Bucket.git`, tag `202307242341`)
   - CCDBucket/DamServer (from `https://github.com/zhu410289616/Bucket.git`, tag `202307242341`)
@@ -105,7 +107,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   AFNetworking: 3bd23d814e976cd148d7d44c3ab78017b744cd58
-  CCDAudio: 2886aec7998383b7c041b16d12a2292f800e5774
+  CCDAudio: 6d74667137d8f915262cebf0829ec00d79670c57
   CCDBucket: 59258c899b0e0183e2a1769d5389b6242fb7ea3c
   CocoaLumberjack: 543c79c114dadc3b1aba95641d8738b06b05b646
   GCDWebServer: 2c156a56c8226e2d5c0c3f208a3621ccffbe3ce4
@@ -115,6 +117,6 @@ SPEC CHECKSUMS:
   Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
   SCSiriWaveformView: 15b9dd6f94c7536e2032b34a35c6ff74d38c7411
 
-PODFILE CHECKSUM: 1ab6c2f59497856cfbf1075d365f217966742784
+PODFILE CHECKSUM: da2111b9e71b9d217e78983b91eed2052a64be23
 
 COCOAPODS: 1.11.3

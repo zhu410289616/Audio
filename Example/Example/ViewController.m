@@ -28,6 +28,9 @@
 //#import <CCDAudio/CCDAQAudioRecorderSTOutput.h>
 #import <CCDAudio/CCDAQAudioRecorderMP3Output.h>
 
+//noise
+#import "CCDTestNoiseProcessor.h"
+#import <CCDAudio/CCDWebRTCNoiseProcessor.h>
 
 
 @interface ViewController ()
@@ -80,6 +83,18 @@ CCDAudioPlayerDelegate
         @"content": @"AUAudioRecorder"
     }.mutableCopy;
     [self.menuList addObject:menuDic];
+    
+    menuDic = @{
+        @"menu_id": @(104),
+        @"content": @"录制 降噪测试 WebRTC"
+    }.mutableCopy;
+    [self.menuList addObject:menuDic];
+    
+    menuDic = @{
+        @"menu_id": @(105),
+        @"content": @"播放 降噪测试 WebRTC"
+    }.mutableCopy;
+    [self.menuList addObject:menuDic];
 }
 
 - (void)viewDidLoad {
@@ -120,6 +135,12 @@ CCDAudioPlayerDelegate
             break;
         case 103:
             [self doAURecordButtonAction];
+            break;
+        case 104:
+            [self doRecorderWebRTCNoiseTest];
+            break;
+        case 105:
+            [self doPlayerWebRTCNoiseTest];
             break;
         default:
             break;
@@ -172,6 +193,68 @@ CCDAudioPlayerDelegate
 
 #pragma mark - action
 
+#pragma mark - 降噪测试
+
+- (void)doPlayerWebRTCNoiseTest
+{
+    if (self.player.isRunning) {
+        [self.player stop];
+        [self.recorderView updateStateInfo:@"player stop"];
+    } else {
+        //ffplay -i /Users/shinianzhiqian/Desktop/pig/Audio/Example/Example/Resources/china-x.pcm -f s16le -ac 1 -ar 44100
+//        NSURL *audioURL = [[NSBundle mainBundle] URLForResource:@"china-x" withExtension:@"pcm"];//44100
+//        NSInteger sampleRate = 44100;
+        
+        NSURL *audioURL = [[NSBundle mainBundle] URLForResource:@"noise" withExtension:@"pcm"];//16000
+        NSInteger sampleRate = 16000;
+        
+        if (self.filePath.length > 0) {
+            audioURL = [NSURL fileURLWithPath:self.filePath];
+        }
+        
+        NSString *ext = audioURL.pathExtension;
+        id<CCDAudioPlayerInput> audioInput = nil;
+        if ([ext isEqualToString:@"pcm"]) {
+            CCDAudioPlayerInputPCM *input = [[CCDAudioPlayerInputPCM alloc] initWithURL:audioURL];
+            input.audioFormat = [self pcmAudioFormat:sampleRate];
+            audioInput = input;
+            self.player = [[CCDAUAudioPlayer alloc] init];
+        } else if ([ext isEqualToString:@"mp3"]
+                   || [ext isEqualToString:@"m4a"]) {
+            CCDAVAudioPlayerInput *input = [[CCDAVAudioPlayerInput alloc] init];
+            input.audioPath = audioURL.path;
+            audioInput = input;
+            self.player = [[CCDAVAudioPlayer alloc] init];
+        }
+        
+        self.player.delegate = self;
+        self.player.audioInput = audioInput;
+        if (![self.player prepare]) {
+            CCDAudioLogE(@"player prepare failed");
+            [self.recorderView updateStateInfo:@"player prepare failed"];
+            return;
+        }
+        [self.player play];
+        [self.recorderView updateStateInfo:@"player start"];
+    }
+}
+
+- (void)doRecorderWebRTCNoiseTest
+{
+    if (self.recorder.isRunning) {
+        [self stopRecord];
+        [self.recorderView updateStateInfo:@"AudioUnit AudioRecorder stop"];
+    } else {
+        // pcm
+        CCDTestNoiseProcessor *output = [[CCDTestNoiseProcessor alloc] initWithSampleRate:16000];
+        [self setupAURecorder:output];
+        [self startRecord];
+        [self.recorderView updateStateInfo:@"AudioUnit AudioRecorder start"];
+    }
+}
+
+#pragma mark - player
+
 - (void)doPlayButtonAction
 {
     if (self.player.isRunning) {
@@ -193,7 +276,7 @@ CCDAudioPlayerDelegate
             audioURL = [NSURL fileURLWithPath:self.filePath];
         }
         
-        NSString *ext = self.filePath.pathExtension;
+        NSString *ext = audioURL.pathExtension;
         id<CCDAudioPlayerInput> audioInput = nil;
         if ([ext isEqualToString:@"pcm"]) {
             CCDAudioPlayerInputPCM *input = [[CCDAudioPlayerInputPCM alloc] initWithURL:audioURL];
@@ -203,7 +286,7 @@ CCDAudioPlayerDelegate
         } else if ([ext isEqualToString:@"mp3"]
                    || [ext isEqualToString:@"m4a"]) {
             CCDAVAudioPlayerInput *input = [[CCDAVAudioPlayerInput alloc] init];
-            input.audioPath = self.filePath;
+            input.audioPath = audioURL.path;
             audioInput = input;
             self.player = [[CCDAVAudioPlayer alloc] init];
         }
@@ -220,10 +303,7 @@ CCDAudioPlayerDelegate
     }
 }
 
-- (void)doRecordButtonAction
-{
-    [self doAVRecordButtonAction];
-}
+#pragma mark - recorder
 
 - (void)doAURecordButtonAction
 {

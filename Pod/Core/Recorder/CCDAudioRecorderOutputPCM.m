@@ -28,12 +28,11 @@
     return self;
 }
 
-- (instancetype)initWithPath:(NSString *)path
+- (instancetype)initWithSampleRate:(NSInteger)sampleRate
 {
     if (self = [super init]) {
-        _audioPath = path;
-        _outputStream = [[NSOutputStream alloc] initToFileAtPath:path append:NO];
-        [self setupAudioFormat:16000];
+        _audioPath = [NSTemporaryDirectory() stringByAppendingString:@"record.pcm"];
+        [self setupAudioFormat:sampleRate];
     }
     return self;
 }

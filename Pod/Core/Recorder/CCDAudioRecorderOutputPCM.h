@@ -16,7 +16,7 @@ typedef void(^CCDAudioRecorderPCMCallback)(AudioBufferList *bufferList);
 
 @property (nonatomic, copy) CCDAudioRecorderPCMCallback pcmCallback;
 
-- (instancetype)initWithPath:(NSString *)path;
+- (instancetype)initWithSampleRate:(NSInteger)sampleRate;
 
 - (void)setupAudioFormat:(NSInteger)sampleRate;
 - (void)write:(void *)bytes maxSize:(NSInteger)maxSize;
