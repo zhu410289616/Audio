@@ -14,20 +14,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @required
 
-//@property (nonatomic, assign) CCDAudioType audioType;
 @property (nonatomic, assign) AudioStreamBasicDescription audioFormat;
 @property (nonatomic, strong) NSString *audioPath;
-
-@optional
-
-- (BOOL)openAudioFile;
-- (void)closeAudioFile;
 
 @end
 
 @protocol CCDAudioRecorderDataOutput <CCDAudioRecorderOutput>
-
-@property (nonatomic, assign) AudioStreamBasicDescription audioFormat;
 
 - (void)begin;
 - (void)end;
@@ -36,7 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@protocol CCDAudioQueueRecorderOutput <CCDAudioRecorderOutput>
+#pragma mark - AudioQueue
+
+@protocol CCDAudioQueueRecorderOutput <CCDAudioRecorderDataOutput>
 
 @required
 
@@ -47,15 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)didReceiveAudio:(CCDAudioQueueInputData)inData;
 - (UInt32)computeRecordBufferSize:(const AudioStreamBasicDescription *)format;
-
-@end
-
-@protocol CCDAudioUnitRecorderOutput <CCDAudioRecorderOutput>
-
-@required
-
-- (void)receiveAudio:(AudioBufferList)bufferList;
-- (void)receiveAudio:(const void *)aAudioData size:(UInt32)aSize;
 
 @end
 

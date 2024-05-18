@@ -35,13 +35,13 @@
     }
     
     NSString *filePath = self.audioOutput.audioPath;
-    CCDAudioLog(@"filePath: %@", filePath);
+    CCDAudioLogD(@"filePath: %@", filePath);
     if (filePath.length == 0) {
         return NO;
     }
     
-    if ([self.audioOutput respondsToSelector:@selector(openAudioFile)]) {
-        [self.audioOutput openAudioFile];
+    if ([self.audioOutput respondsToSelector:@selector(begin)]) {
+        [self.audioOutput begin];
     }
     NSURL *audioFileURL = [NSURL fileURLWithPath:filePath];
     
@@ -86,8 +86,8 @@
     [self.recorder stop];
     self.recorder = nil;
     
-    if ([self.audioOutput respondsToSelector:@selector(closeAudioFile)]) {
-        [self.audioOutput closeAudioFile];
+    if ([self.audioOutput respondsToSelector:@selector(end)]) {
+        [self.audioOutput end];
     }
     
     if ([self.delegate respondsToSelector:@selector(recorderDidStop:)]) {

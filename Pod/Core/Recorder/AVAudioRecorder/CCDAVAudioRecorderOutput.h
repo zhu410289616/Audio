@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface CCDAVAudioRecorderOutput : NSObject <CCDAudioRecorderOutput>
+@interface CCDAVAudioRecorderOutput : NSObject <CCDAudioRecorderDataOutput>
 
 + (instancetype)m4aAudioOutput;
 + (instancetype)cafAudioOutput;

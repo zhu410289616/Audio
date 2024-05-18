@@ -14,7 +14,7 @@
 
 + (instancetype)m4aAudioOutput
 {
-    id<CCDAudioRecorderOutput> audioOutput = [[self alloc] init];
+    id<CCDAudioRecorderDataOutput> audioOutput = [[self alloc] init];
     
     AudioStreamBasicDescription tempAudioFormat;
     memset(&tempAudioFormat, 0, sizeof(tempAudioFormat));
@@ -28,7 +28,6 @@
     NSString *name = [NSString stringWithFormat:@"audio_output.m4a"];
     NSString *filePath = [NSTemporaryDirectory() stringByAppendingPathComponent:name];
     
-//    audioOutput.audioType = CCDAudioTypeM4A;
     audioOutput.audioFormat = tempAudioFormat;
     audioOutput.audioPath = filePath;
     return audioOutput;
@@ -36,7 +35,7 @@
 
 + (instancetype)cafAudioOutput
 {
-    id<CCDAudioRecorderOutput> audioOutput = [[self alloc] init];
+    id<CCDAudioRecorderDataOutput> audioOutput = [[self alloc] init];
     
     AudioStreamBasicDescription tempAudioFormat;
     memset(&tempAudioFormat, 0, sizeof(tempAudioFormat));
@@ -58,7 +57,6 @@
     NSString *name = [NSString stringWithFormat:@"audio_output.m4a"];
     NSString *filePath = [NSTemporaryDirectory() stringByAppendingPathComponent:name];
     
-//    audioOutput.audioType = CCDAudioTypeCaf;
     audioOutput.audioFormat = tempAudioFormat;
     audioOutput.audioPath = filePath;
     return audioOutput;
@@ -80,9 +78,7 @@
     tempAudioFormat.mFormatID = kAudioFormatMPEG4AAC;
     tempAudioFormat.mSampleRate = 16000;
     tempAudioFormat.mChannelsPerFrame = 1;
-    
-//    _audioType = CCDAudioTypeM4A;
-    _audioFormat = tempAudioFormat;
+    self.audioFormat = tempAudioFormat;
 }
 
 - (NSString *)audioPath
@@ -94,18 +90,19 @@
     return _audioPath;
 }
 
-#pragma mark - CCDAudioRecorderOutput
+#pragma mark - CCDAudioRecorderDataOutput
 
-- (BOOL)openAudioFile
+- (void)begin
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     if ([fileManager fileExistsAtPath:self.audioPath]) {
         [fileManager removeItemAtPath:self.audioPath error:nil];
-        return YES;
     }
-    
-    BOOL isSuccess = [fileManager createFileAtPath:self.audioPath contents:nil attributes:nil];
-    return isSuccess;
+    [fileManager createFileAtPath:self.audioPath contents:nil attributes:nil];
 }
+
+- (void)end {}
+
+- (void)write:(nonnull AudioBufferList *)bufferList {}
 
 @end

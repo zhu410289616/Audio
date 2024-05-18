@@ -53,7 +53,7 @@
 
 #pragma mark - CCDAudioRecorderOutput
 
-- (BOOL)openAudioFile
+- (void)begin
 {
     NSString *filePath = self.audioPath;
     
@@ -69,14 +69,9 @@
     
     //建立mp3文件
     _file = fopen(filePath.UTF8String, "wb+");
-    if (_file == NULL) {
-        return NO;
-    }
-    
-    return YES;
 }
 
-- (void)closeAudioFile
+- (void)end
 {
     if (_file) {
         fclose(_file);
@@ -88,6 +83,8 @@
         _lame = NULL;
     }
 }
+
+- (void)write:(nonnull AudioBufferList *)bufferList {}
 
 #pragma mark - CCDAudioQueueRecorderOutput
 

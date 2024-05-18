@@ -54,7 +54,7 @@
     }
     
     NSString *filePath = self.audioInput.audioPath;
-    CCDAudioLog(@"filePath: %@", filePath);
+    CCDAudioLogD(@"filePath: %@", filePath);
     if (filePath.length == 0) {
         return NO;
     }

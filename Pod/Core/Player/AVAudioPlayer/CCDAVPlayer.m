@@ -42,7 +42,7 @@
     }
     
     NSString *filePath = self.audioInput.audioPath;
-    CCDAudioLog(@"filePath: %@", filePath);
+    CCDAudioLogD(@"filePath: %@", filePath);
     if (filePath.length == 0) {
         return NO;
     }
@@ -123,7 +123,7 @@
         switch (status) {
             case AVPlayerItemStatusUnknown:
             case AVPlayerItemStatusFailed: {
-                CCDAudioLog(@"item failed ...");
+                CCDAudioLogW(@"item failed ...");
             }
                 break;
             case AVPlayerItemStatusReadyToPlay: {

@@ -110,8 +110,8 @@ void CCDAudioQueueInputBufferHandler(void *inUserData,
         if ([self.audioOutput conformsToProtocol:@protocol(CCDAudioQueueRecorderOutput)]) {
             audioOutput = (id<CCDAudioQueueRecorderOutput>)self.audioOutput;
         }
-        if ([audioOutput respondsToSelector:@selector(openAudioFile)]) {
-            [audioOutput openAudioFile];
+        if ([audioOutput respondsToSelector:@selector(begin)]) {
+            [audioOutput begin];
         }
         
         // copy the cookie first to give the file object as much info as we can about the data going in
@@ -172,18 +172,16 @@ void CCDAudioQueueInputBufferHandler(void *inUserData,
     }
     
     // a codec may update its cookie at the end of an encoding session, so reapply it to the file now
-    id<CCDAudioQueueRecorderOutput> audioOutput = nil;
-    if ([self.audioOutput conformsToProtocol:@protocol(CCDAudioQueueRecorderOutput)]) {
-        audioOutput = (id<CCDAudioQueueRecorderOutput>)self.audioOutput;
-    }
+    id<CCDAudioQueueRecorderOutput> audioOutput = self.audioOutput;
+    
     NSError *error = nil;
     [audioOutput copyEncoderCookieToFile:_audioQueue error:&error];
     if (error) {
         NSDictionary *userInfo = error.userInfo;
         [self __trackErrorWithCode:error.code message:userInfo[NSLocalizedDescriptionKey]];
     }
-    if ([audioOutput respondsToSelector:@selector(closeAudioFile)]) {
-        [audioOutput closeAudioFile];
+    if ([audioOutput respondsToSelector:@selector(end)]) {
+        [audioOutput end];
     }
     
     // stop

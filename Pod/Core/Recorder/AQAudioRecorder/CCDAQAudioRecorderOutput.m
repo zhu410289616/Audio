@@ -19,7 +19,7 @@
 
 #pragma mark - CCDAudioRecorderOutput
 
-- (BOOL)openAudioFile
+- (void)begin
 {
     NSString *filePath = self.audioPath;
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -33,16 +33,21 @@
     CFURLRef url = CFURLCreateWithString(kCFAllocatorDefault, (CFStringRef)filePath, NULL);
     OSStatus status = AudioFileCreateWithURL(url, kAudioFileCAFType, &audioFormat, kAudioFileFlags_EraseFile, &_audioFile);
     if (status != noErr) {
-        return NO;
+        CCDAudioLogE(@"AudioFileCreateWithURL: %@", @(status));
     }
-    
-    CFRelease(url);
-    return YES;
+    !url ?: CFRelease(url);
 }
 
-- (void)closeAudioFile
+- (void)end
 {
-    AudioFileClose(_audioFile);
+    if (_audioFile) {
+        AudioFileClose(_audioFile);
+        _audioFile = NULL;
+    }
+}
+
+- (void)write:(nonnull AudioBufferList *)bufferList
+{    
 }
 
 #pragma mark - CCDAudioQueueRecorderOutput
