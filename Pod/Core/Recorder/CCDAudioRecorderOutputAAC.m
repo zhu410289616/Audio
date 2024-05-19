@@ -307,10 +307,13 @@ static OSStatus inputDataProcess(AudioConverterRef inConverter,
     AudioBufferList *bufferList = inUserData;
     if (bufferList->mBuffers[0].mDataByteSize == 0) {
         *ioNumberDataPackets = 0;
-        return noErr;
+        return -1;
     }
     ioData->mBuffers[0].mData = bufferList->mBuffers[0].mData;
     ioData->mBuffers[0].mDataByteSize = bufferList->mBuffers[0].mDataByteSize;
+    // 清理数据，不清理会出现录制的音频出现延迟；why？？？
+    bufferList->mBuffers[0].mData = NULL;
+    bufferList->mBuffers[0].mDataByteSize = 0;
     
     *ioNumberDataPackets = 1;
     return noErr;
