@@ -168,14 +168,21 @@
     void *pcmData = malloc(pcmDataSize);
     memset(pcmData, 0, pcmDataSize);
     memcpy(pcmData, bufferList->mBuffers[0].mData, pcmDataSize);
-    
+
     _pcmBuffer = pcmData;
     _pcmBufferSize = pcmDataSize;
 
+    AudioBufferList inBufferList = {0};
+    inBufferList.mNumberBuffers = 1;
+    inBufferList.mBuffers[0].mNumberChannels = 1;
+    inBufferList.mBuffers[0].mDataByteSize = bufferList->mBuffers[0].mDataByteSize;
+    inBufferList.mBuffers[0].mData = bufferList->mBuffers[0].mData;
+    
 //    AudioBufferList *inBufferList = (AudioBufferList *)malloc(sizeof(AudioBufferList));
 //    inBufferList->mNumberBuffers = 1;
-//    inBufferList->mBuffers[0].mDataByteSize = (UInt32)pcmDataSize;
-//    inBufferList->mBuffers[0].mData = pcmData;
+//    inBufferList->mBuffers[0].mNumberChannels = 1;
+//    inBufferList->mBuffers[0].mDataByteSize = bufferList->mBuffers[0].mDataByteSize;
+//    inBufferList->mBuffers[0].mData = bufferList->mBuffers[0].mData;
     
     memset(_aacBuffer, 0, _aacBufferSize);
     
@@ -192,9 +199,15 @@
     /// 需要在回调方法 inputDataProcess 中将待编码的数据拷贝到编码器的缓冲区的对应位置。
     /// 这里把我们自己创建的待编码缓冲区 AudioBufferList 作为 inInputDataProcUserData 传入，
     /// 在回调方法中直接拷贝它。
-    OSStatus status = AudioConverterFillComplexBuffer(_audioConverter, inputDataProcess, (__bridge void *)(self), &outputDataPacketSize, &outBufferList, NULL);
+    OSStatus status = AudioConverterFillComplexBuffer(_audioConverter, inputDataProcess, &inBufferList, &outputDataPacketSize, &outBufferList, NULL);
+//    OSStatus status = AudioConverterFillComplexBuffer(_audioConverter, inputDataProcess, inBufferList, &outputDataPacketSize, &outBufferList, NULL);
+//    OSStatus status = AudioConverterFillComplexBuffer(_audioConverter, inputDataProcess, (__bridge void *)(self), &outputDataPacketSize, &outBufferList, NULL);
     if (status != noErr) {
         CCDAudioLogE(@"AudioConverterFillComplexBuffer: %@", @(status));
+        return;
+    }
+    
+    if (outputDataPacketSize == 0) {
         return;
     }
     
@@ -232,7 +245,11 @@
     }
     ioData->mBuffers[0].mData = _pcmBuffer;
     ioData->mBuffers[0].mDataByteSize = (int)_pcmBufferSize;
-    _pcmBuffer = NULL;
+    
+    if (_pcmBuffer) {
+        free(_pcmBuffer);
+        _pcmBuffer = NULL;
+    }
     _pcmBufferSize = 0;
     return originalBufferSize;
 }
@@ -276,23 +293,26 @@ static OSStatus inputDataProcess(AudioConverterRef inConverter,
                                  AudioBufferList *ioData,
                                  AudioStreamPacketDescription **outDataPacketDescription,
                                  void *inUserData) {
-    CCDAudioRecorderOutputAAC *encoder = (__bridge CCDAudioRecorderOutputAAC *)(inUserData);
-    UInt32 requestedPackets = *ioNumberDataPackets;
-    
-    size_t copiedSamples = [encoder copyPCMSamplesIntoBuffer:ioData];
-    if (copiedSamples < requestedPackets) {
-        //PCM 缓冲区还没满
-        *ioNumberDataPackets = 0;
-        return -1;
-    }
-    *ioNumberDataPackets = 1;
+//    CCDAudioRecorderOutputAAC *encoder = (__bridge CCDAudioRecorderOutputAAC *)(inUserData);
+//    UInt32 requestedPackets = *ioNumberDataPackets;
+//
+//    size_t copiedSamples = [encoder copyPCMSamplesIntoBuffer:ioData];
+//    if (copiedSamples < requestedPackets) {
+//        //PCM 缓冲区还没满
+//        *ioNumberDataPackets = 0;
+//        return -1;
+//    }
     
     // 将待编码的数据拷贝到编码器的缓冲区的对应位置进行编码。
-//    AudioBufferList bufferList = *(AudioBufferList *) inUserData;
-//    ioData->mBuffers[0].mNumberChannels = 1;
-//    ioData->mBuffers[0].mData = bufferList.mBuffers[0].mData;
-//    ioData->mBuffers[0].mDataByteSize = bufferList.mBuffers[0].mDataByteSize;
+    AudioBufferList *bufferList = inUserData;
+    if (bufferList->mBuffers[0].mDataByteSize == 0) {
+        *ioNumberDataPackets = 0;
+        return noErr;
+    }
+    ioData->mBuffers[0].mData = bufferList->mBuffers[0].mData;
+    ioData->mBuffers[0].mDataByteSize = bufferList->mBuffers[0].mDataByteSize;
     
+    *ioNumberDataPackets = 1;
     return noErr;
 }
 
