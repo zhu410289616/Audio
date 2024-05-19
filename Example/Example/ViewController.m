@@ -23,6 +23,7 @@
 #import <CCDAudio/CCDAudioRecorderOutputPCM.h>
 #import <CCDAudio/CCDAudioRecorderOutputMP3.h>
 #import <CCDAudio/CCDAudioRecorderOutputM4A.h>
+#import <CCDAudio/CCDAudioRecorderOutputAAC.h>
 
 #import <CCDAudio/CCDAQAudioRecorder.h>
 //#import <CCDAudio/CCDAQAudioRecorderSTOutput.h>
@@ -32,6 +33,17 @@
 #import "CCDTestNoiseProcessor.h"
 #import <CCDAudio/CCDWebRTCNoiseProcessor.h>
 
+typedef NS_ENUM(NSInteger, CCDAudioTestMenuType) {
+    CCDAudioTestMenuTypeAudioPlay = 1,
+    CCDAudioTestMenuTypeAVAudioRecorder,
+    CCDAudioTestMenuTypeAQAudioRecorder,
+    CCDAudioTestMenuTypeAUAudioRecorder,
+    CCDAudioTestMenuTypeWebRTCNosieIn,
+    CCDAudioTestMenuTypeWebRTCNosieOut,
+    CCDAudioTestMenuTypeAACEncoder,
+    CCDAudioTestMenuTypeAACDecoder,
+    CCDAudioTestMenuTypeUnknown
+};
 
 @interface ViewController ()
 <
@@ -61,38 +73,50 @@ CCDAudioPlayerDelegate
     NSMutableDictionary *menuDic = nil;
     
     menuDic = @{
-        @"menu_id": @(1),
-        @"content": @"play"
+        @"menu_id": @(CCDAudioTestMenuTypeAudioPlay),
+        @"content": @"play audio"
     }.mutableCopy;
     [self.menuList addObject:menuDic.mutableCopy];
     
     menuDic = @{
-        @"menu_id": @(101),
+        @"menu_id": @(CCDAudioTestMenuTypeAVAudioRecorder),
         @"content": @"AVAudioRecorder"
     }.mutableCopy;
     [self.menuList addObject:menuDic];
     
     menuDic = @{
-        @"menu_id": @(102),
+        @"menu_id": @(CCDAudioTestMenuTypeAQAudioRecorder),
         @"content": @"AQAudioRecorder"
     }.mutableCopy;
     [self.menuList addObject:menuDic];
     
     menuDic = @{
-        @"menu_id": @(103),
+        @"menu_id": @(CCDAudioTestMenuTypeAUAudioRecorder),
         @"content": @"AUAudioRecorder"
     }.mutableCopy;
     [self.menuList addObject:menuDic];
     
     menuDic = @{
-        @"menu_id": @(104),
+        @"menu_id": @(CCDAudioTestMenuTypeWebRTCNosieIn),
         @"content": @"录制 降噪测试 WebRTC"
     }.mutableCopy;
     [self.menuList addObject:menuDic];
     
     menuDic = @{
-        @"menu_id": @(105),
+        @"menu_id": @(CCDAudioTestMenuTypeWebRTCNosieOut),
         @"content": @"播放 降噪测试 WebRTC"
+    }.mutableCopy;
+    [self.menuList addObject:menuDic];
+    
+    menuDic = @{
+        @"menu_id": @(CCDAudioTestMenuTypeAACEncoder),
+        @"content": @"PCM -> AAC 编码"
+    }.mutableCopy;
+    [self.menuList addObject:menuDic];
+    
+    menuDic = @{
+        @"menu_id": @(CCDAudioTestMenuTypeAACDecoder),
+        @"content": @"AAC -> PCM 解码"
     }.mutableCopy;
     [self.menuList addObject:menuDic];
 }
@@ -124,23 +148,28 @@ CCDAudioPlayerDelegate
     NSMutableDictionary *menuDic = [self.menuList objectAtIndex:indexPath.row];
     NSInteger menuId = [menuDic[@"menu_id"] longLongValue];
     switch (menuId) {
-        case 1:
+        case CCDAudioTestMenuTypeAudioPlay:
             [self doPlayButtonAction];
             break;
-        case 101:
+        case CCDAudioTestMenuTypeAVAudioRecorder:
             [self doAVRecordButtonAction];
             break;
-        case 102:
+        case CCDAudioTestMenuTypeAQAudioRecorder:
             [self doAQRecordButtonAction];
             break;
-        case 103:
+        case CCDAudioTestMenuTypeAUAudioRecorder:
             [self doAURecordButtonAction];
             break;
-        case 104:
+        case CCDAudioTestMenuTypeWebRTCNosieIn:
             [self doRecorderWebRTCNoiseTest];
             break;
-        case 105:
+        case CCDAudioTestMenuTypeWebRTCNosieOut:
             [self doPlayerWebRTCNoiseTest];
+            break;
+        case CCDAudioTestMenuTypeAACEncoder:
+            [self doAACRecordAction];
+            break;
+        case CCDAudioTestMenuTypeAACDecoder:
             break;
         default:
             break;
@@ -192,6 +221,23 @@ CCDAudioPlayerDelegate
 }
 
 #pragma mark - action
+
+#pragma mark - AAC
+
+- (void)doAACRecordAction
+{
+    if (self.recorder.isRunning) {
+        [self stopRecord];
+        [self.recorderView updateStateInfo:@"AAC AudioUnit AudioRecorder stop"];
+    } else {
+        // m4a
+        CCDAudioRecorderOutputAAC *output = [[CCDAudioRecorderOutputAAC alloc] init];
+        
+        [self setupAURecorder:output];
+        [self startRecord];
+        [self.recorderView updateStateInfo:@"AAC AudioUnit AudioRecorder start"];
+    }
+}
 
 #pragma mark - 降噪测试
 

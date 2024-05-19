@@ -44,7 +44,7 @@
         [_tableView mas_remakeConstraints:^(MASConstraintMaker *make) {
             make.leading.trailing.equalTo(self);
             make.top.equalTo(self);
-            make.height.equalTo(@(300));
+            make.height.equalTo(@(500));
         }];
         
         [_stateLabel mas_remakeConstraints:^(MASConstraintMaker *make) {
