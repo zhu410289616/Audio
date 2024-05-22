@@ -14,6 +14,7 @@
 
 #import <CCDAudio/CCDAUAudioPlayer.h>
 #import <CCDAudio/CCDAudioPlayerInputPCM.h>
+#import <CCDAudio/CCDAudioPlayerInputAAC.h>
 
 //recorder
 #import <CCDAudio/CCDAVAudioRecorder.h>
@@ -170,6 +171,7 @@ CCDAudioPlayerDelegate
             [self doAACRecordAction];
             break;
         case CCDAudioTestMenuTypeAACDecoder:
+            [self doAACPlayAction];
             break;
         default:
             break;
@@ -232,10 +234,46 @@ CCDAudioPlayerDelegate
     } else {
         // m4a
         CCDAudioRecorderOutputAAC *output = [[CCDAudioRecorderOutputAAC alloc] init];
+        [output setupAudioFormat:44100];
         
         [self setupAURecorder:output];
         [self startRecord];
         [self.recorderView updateStateInfo:@"AAC AudioUnit AudioRecorder start"];
+    }
+}
+
+- (void)doAACPlayAction
+{
+    if (self.player.isRunning) {
+        [self.player stop];
+        [self.recorderView updateStateInfo:@"player stop"];
+    } else {
+        //ffplay -i /Users/shinianzhiqian/Desktop/pig/Audio/Example/Example/Resources/china-x.pcm -f s16le -ac 1 -ar 44100
+        NSURL *audioURL = [[NSBundle mainBundle] URLForResource:@"几个你_薛之谦" withExtension:@"aac"];//44100
+        NSInteger sampleRate = 44100;
+        
+        if (self.filePath.length > 0) {
+            audioURL = [NSURL fileURLWithPath:self.filePath];
+        }
+        
+        NSString *ext = audioURL.pathExtension;
+        id<CCDAudioPlayerInput> audioInput = nil;
+        if ([ext isEqualToString:@"aac"]) {
+            CCDAudioPlayerInputAAC *input = [[CCDAudioPlayerInputAAC alloc] initWithURL:audioURL];
+            [input setupAudioFormat:sampleRate];
+            audioInput = input;
+            self.player = [[CCDAUAudioPlayer alloc] init];
+        }
+        
+        self.player.delegate = self;
+        self.player.audioInput = audioInput;
+        if (![self.player prepare]) {
+            CCDAudioLogE(@"player prepare failed");
+            [self.recorderView updateStateInfo:@"player prepare failed"];
+            return;
+        }
+        [self.player play];
+        [self.recorderView updateStateInfo:@"player start"];
     }
 }
 
@@ -248,11 +286,11 @@ CCDAudioPlayerDelegate
         [self.recorderView updateStateInfo:@"player stop"];
     } else {
         //ffplay -i /Users/shinianzhiqian/Desktop/pig/Audio/Example/Example/Resources/china-x.pcm -f s16le -ac 1 -ar 44100
-//        NSURL *audioURL = [[NSBundle mainBundle] URLForResource:@"china-x" withExtension:@"pcm"];//44100
-//        NSInteger sampleRate = 44100;
+        NSURL *audioURL = [[NSBundle mainBundle] URLForResource:@"china-x" withExtension:@"pcm"];//44100
+        NSInteger sampleRate = 44100;
         
-        NSURL *audioURL = [[NSBundle mainBundle] URLForResource:@"noise" withExtension:@"pcm"];//16000
-        NSInteger sampleRate = 16000;
+//        NSURL *audioURL = [[NSBundle mainBundle] URLForResource:@"noise" withExtension:@"pcm"];//16000
+//        NSInteger sampleRate = 16000;
         
         if (self.filePath.length > 0) {
             audioURL = [NSURL fileURLWithPath:self.filePath];
@@ -262,6 +300,11 @@ CCDAudioPlayerDelegate
         id<CCDAudioPlayerInput> audioInput = nil;
         if ([ext isEqualToString:@"pcm"]) {
             CCDAudioPlayerInputPCM *input = [[CCDAudioPlayerInputPCM alloc] initWithURL:audioURL];
+            input.audioFormat = [self pcmAudioFormat:sampleRate];
+            audioInput = input;
+            self.player = [[CCDAUAudioPlayer alloc] init];
+        } else if ([ext isEqualToString:@"aac"]) {
+            CCDAudioPlayerInputAAC *input = [[CCDAudioPlayerInputAAC alloc] initWithURL:audioURL];
             input.audioFormat = [self pcmAudioFormat:sampleRate];
             audioInput = input;
             self.player = [[CCDAUAudioPlayer alloc] init];
