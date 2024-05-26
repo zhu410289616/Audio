@@ -108,6 +108,17 @@ static OSStatus CCDAUPlayCallback(void *inRefCon,
         return NO;
     }
     
+    status = AudioUnitSetProperty(_audioUnit,
+                         kAudioUnitProperty_StreamFormat,
+                         kAudioUnitScope_Output,
+                         1,/**INPUT_BUS*/
+                         &audioFormat,
+                         sizeof(audioFormat));
+    if (status != noErr) {
+        CCDAudioLogE(@"kAudioUnitProperty_StreamFormat: %@", @(status));
+        return NO;
+    }
+    
     AURenderCallbackStruct playCallback;
     playCallback.inputProc = CCDAUPlayCallback;
     playCallback.inputProcRefCon = (__bridge void *)self;

@@ -6,6 +6,8 @@
 //
 
 #import "CCDAudioPlayerInputAAC.h"
+#import "CCDAudioAACFileReader.h"
+#import "CCDAudioUtil.h"
 
 const static NSInteger OUTPUT_BUS = 0;
 const static NSInteger CONST_BUFFER_SIZE = 5000;
@@ -14,6 +16,8 @@ const static NSInteger NO_MORE_DATA = -100000;
 @interface CCDAudioPlayerInputAAC ()
 
 @property (nonatomic, strong) NSURL *audioURL;
+@property (nonatomic, strong) CCDAudioAACFileReader *aacReader;
+
 @property (nonatomic, assign) AudioConverterRef audioConverter;
 @property (assign, nonatomic) AudioStreamBasicDescription srcAudioFormat;
 //获取格式，转码需要的属性
@@ -34,7 +38,7 @@ const static NSInteger NO_MORE_DATA = -100000;
 {
     if (self = [super init]) {
         _audioURL = audioURL;
-        [self setupAudioFormat:44100];
+        _aacReader = [[CCDAudioAACFileReader alloc] initWithFilePath:audioURL.path];
     }
     return self;
 }
@@ -43,39 +47,9 @@ const static NSInteger NO_MORE_DATA = -100000;
 
 - (void)setupAudioFormat:(NSInteger)sampleRate
 {
-    AudioStreamBasicDescription audioFormat;
-    //采样率，每秒钟抽取声音样本次数。根据奈奎斯特采样理论，为了保证声音不失真，采样频率应该在40kHz左右
-    audioFormat.mSampleRate = sampleRate;
-    audioFormat.mFormatID = kAudioFormatLinearPCM;
-    audioFormat.mFormatFlags = kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsNonInterleaved;
-
-    //下面就是设置声音采集时的一些值
-    //比如采样率为44.1kHZ，采样精度为16位的双声道，可以算出比特率（bps）是44100*16*2bps，每秒的音频数据是固定的44100*16*2/8字节。
-    //官方解释：满足下面这个公式时，上面的mFormatFlags会隐式设置为kAudioFormatFlagIsPacked
-    //((mBitsPerSample / 8) * mChannelsPerFrame) == mBytesPerFrame
-    audioFormat.mBytesPerPacket = 2;
-    audioFormat.mFramesPerPacket = 1;
-    audioFormat.mBytesPerFrame = 2;
-    audioFormat.mChannelsPerFrame = 1;//1是单声道，2就是立体声。这里的数量决定了AudioBufferList的mBuffers长度是1还是2。
-    audioFormat.mBitsPerChannel = 16;//采样位数，数字越大，分辨率越高。16位可以记录65536个数，一般来说够用了。
-
-    self.audioFormat = audioFormat;
-    [self setupInputAudioFormat:audioFormat];
-}
-
-- (void)setupInputAudioFormat:(AudioStreamBasicDescription)outputFormat
-{
-    AudioStreamBasicDescription inputFormat = {0};
-    inputFormat.mSampleRate = outputFormat.mSampleRate; // 输出采样率与输入一致。
-    inputFormat.mFormatID = kAudioFormatMPEG4AAC; // AAC 编码格式。常用的 AAC 编码格式：kAudioFormatMPEG4AAC、kAudioFormatMPEG4AAC_HE_V2。
-    inputFormat.mFormatFlags = kMPEG4Object_AAC_Main;
-    inputFormat.mChannelsPerFrame = (UInt32) outputFormat.mChannelsPerFrame; // 输出声道数与输入一致。
-    inputFormat.mFramesPerPacket = 1024; // 每个包的帧数。AAC 固定是 1024，这个是由 AAC 编码规范规定的。对于未压缩数据设置为 1。
-    inputFormat.mBytesPerPacket = 0; // 每个包的大小。动态大小设置为 0。
-    inputFormat.mBytesPerFrame = 0; // 每帧的大小。压缩格式设置为 0。
-    inputFormat.mBitsPerChannel = 0; // 压缩格式设置为 0。
-    
-    self.srcAudioFormat = inputFormat;
+    NSInteger channels = 1;
+    self.audioFormat = CCDAudioCreateASBD_PCM16(sampleRate, channels);
+    self.srcAudioFormat = CCDAudioCreateASBD_AAC(sampleRate, channels);
 }
 
 - (AudioClassDescription *)audioClassDescriptionWithType:(AudioFormatID)type fromManufacturer:(UInt32)manufacturer

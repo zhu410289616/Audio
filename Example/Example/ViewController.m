@@ -15,6 +15,7 @@
 #import <CCDAudio/CCDAUAudioPlayer.h>
 #import <CCDAudio/CCDAudioPlayerInputPCM.h>
 #import <CCDAudio/CCDAudioPlayerInputAAC.h>
+#import <CCDAudio/CCDAudioPlayerAACInput.h>
 
 //recorder
 #import <CCDAudio/CCDAVAudioRecorder.h>
@@ -259,8 +260,11 @@ CCDAudioPlayerDelegate
         NSString *ext = audioURL.pathExtension;
         id<CCDAudioPlayerInput> audioInput = nil;
         if ([ext isEqualToString:@"aac"]) {
-            CCDAudioPlayerInputAAC *input = [[CCDAudioPlayerInputAAC alloc] initWithURL:audioURL];
-            [input setupAudioFormat:sampleRate];
+//            CCDAudioPlayerInputAAC *input = [[CCDAudioPlayerInputAAC alloc] initWithURL:audioURL];
+//            [input setupAudioFormat:sampleRate];
+            
+            CCDAudioPlayerAACInput *input = [[CCDAudioPlayerAACInput alloc] initWithURL:audioURL];
+            
             audioInput = input;
             self.player = [[CCDAUAudioPlayer alloc] init];
         }
