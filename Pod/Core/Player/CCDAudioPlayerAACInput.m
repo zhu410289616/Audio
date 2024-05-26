@@ -11,6 +11,7 @@
 #import "CCDAudioUtil.h"
 
 #import "QHDecodeByAudioConverter.h"
+#import "CCDAudioRecorderOutputPCM.h"
 
 @interface CCDAudioPlayerAACInput ()
 
@@ -19,6 +20,9 @@
 @property (nonatomic, strong) NSURL *audioURL;
 @property (nonatomic, strong) CCDAudioAACFileReader *aacReader;
 @property (nonatomic, strong) id<CCDAudioDecoderProvider> aacDecoder;
+
+/// 测试输出 pcm 数据
+@property (nonatomic, strong) CCDAudioRecorderOutputPCM *outputTest;
 
 @end
 
@@ -40,6 +44,8 @@
             theChannels = channels;
         }];
         _audioFormat = CCDAudioCreateASBD_PCM32(theSampleRate, theChannels);
+        
+        _outputTest = [[CCDAudioRecorderOutputPCM alloc] init];
     }
     return self;
 }
@@ -48,11 +54,13 @@
 
 - (void)begin
 {
+    [self.outputTest begin];
+    
     NSInteger theSampleRate = self.audioFormat.mSampleRate;
     NSInteger theChannels = self.audioFormat.mChannelsPerFrame;
     
     self.aacDecoder = [[CCDAudioAACDecoder alloc] init];
-    self.aacDecoder = [[QHDecodeByAudioConverter alloc] init];
+//    self.aacDecoder = [[QHDecodeByAudioConverter alloc] init];
     self.aacDecoder.inASBD = CCDAudioCreateASBD_AAC(theSampleRate, theChannels);
     self.aacDecoder.outASBD = CCDAudioCreateASBD_PCM32(theSampleRate, theChannels);
     [self.aacDecoder setup];
@@ -60,6 +68,7 @@
 
 - (void)end
 {
+    [self.outputTest end];
     [self.aacDecoder cleanup];
 }
 
@@ -70,6 +79,9 @@
         if (rawData) {
             AudioBufferList *pcm = [self.aacDecoder decodeRawData:rawData];
             if (pcm && pcm->mNumberBuffers > 0 && pcm->mBuffers[0].mData) {
+                
+                [self.outputTest write:pcm];
+                
                 [self.pcmDataBuffer appendBytes:pcm->mBuffers[0].mData length:pcm->mBuffers[0].mDataByteSize];
             }
         }

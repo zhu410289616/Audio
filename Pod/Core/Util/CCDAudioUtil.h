@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 FOUNDATION_EXPORT AudioStreamBasicDescription CCDAudioCreateASBD_PCM16(NSInteger sampleRate, NSInteger channels);
 FOUNDATION_EXPORT AudioStreamBasicDescription CCDAudioCreateASBD_PCM32(NSInteger sampleRate, NSInteger channels);
 FOUNDATION_EXPORT AudioStreamBasicDescription CCDAudioCreateASBD_AAC(NSInteger sampleRate, NSInteger channels);
+FOUNDATION_EXPORT AudioStreamBasicDescription CCDAudioCreateASBD_MP3(NSInteger sampleRate, NSInteger channels);
 
 FOUNDATION_EXPORT void CCDAudioReleaseAudioBuffer(AudioBufferList *bufferList);
 

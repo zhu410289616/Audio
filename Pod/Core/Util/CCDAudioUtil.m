@@ -82,6 +82,19 @@ AudioStreamBasicDescription CCDAudioCreateASBD_AAC(NSInteger sampleRate, NSInteg
     return audioFormat;
 }
 
+AudioStreamBasicDescription CCDAudioCreateASBD_MP3(NSInteger sampleRate, NSInteger channels)
+{
+    AudioStreamBasicDescription audioFormat = {0};
+    audioFormat.mSampleRate = sampleRate;
+    audioFormat.mChannelsPerFrame = (UInt32)channels;
+    audioFormat.mFormatID = kAudioFormatMPEGLayer3;
+    audioFormat.mFramesPerPacket = 576; //采样个数，就是说一帧里面有多少个样本
+    audioFormat.mBitsPerChannel = 0;
+    audioFormat.mBytesPerFrame = 0;
+    audioFormat.mBytesPerPacket = 0;
+    return audioFormat;
+}
+
 void CCDAudioReleaseAudioBuffer(AudioBufferList *bufferList)
 {
     if (NULL == bufferList) {
