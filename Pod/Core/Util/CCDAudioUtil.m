@@ -95,6 +95,19 @@ AudioStreamBasicDescription CCDAudioCreateASBD_MP3(NSInteger sampleRate, NSInteg
     return audioFormat;
 }
 
+void CCDAudioResetAudioBuffer(AudioBufferList *bufferList)
+{
+    if (NULL == bufferList) {
+        return;
+    }
+    NSInteger number = bufferList->mNumberBuffers;
+    for (NSInteger i=0; i<number; i++) {
+        if (bufferList->mBuffers[i].mData) {
+            memset(bufferList->mBuffers[i].mData, 0, bufferList->mBuffers[i].mDataByteSize);
+        }
+    }
+}
+
 void CCDAudioReleaseAudioBuffer(AudioBufferList *bufferList)
 {
     if (NULL == bufferList) {

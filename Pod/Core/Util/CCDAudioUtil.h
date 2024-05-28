@@ -15,6 +15,7 @@ FOUNDATION_EXPORT AudioStreamBasicDescription CCDAudioCreateASBD_PCM32(NSInteger
 FOUNDATION_EXPORT AudioStreamBasicDescription CCDAudioCreateASBD_AAC(NSInteger sampleRate, NSInteger channels);
 FOUNDATION_EXPORT AudioStreamBasicDescription CCDAudioCreateASBD_MP3(NSInteger sampleRate, NSInteger channels);
 
+FOUNDATION_EXPORT void CCDAudioResetAudioBuffer(AudioBufferList *bufferList);
 FOUNDATION_EXPORT void CCDAudioReleaseAudioBuffer(AudioBufferList *bufferList);
 
 @interface CCDAudioUtil : NSObject

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		07957BBB2C062AA4007A5EAE /* video.aac in Resources */ = {isa = PBXBuildFile; fileRef = 07957BBA2C062AA4007A5EAE /* video.aac */; };
 		07DF0A5A2BE92D3B005DAA3A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 07DF0A592BE92D3B005DAA3A /* AppDelegate.m */; };
 		07DF0A5D2BE92D3B005DAA3A /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 07DF0A5C2BE92D3B005DAA3A /* SceneDelegate.m */; };
 		07DF0A602BE92D3B005DAA3A /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 07DF0A5F2BE92D3B005DAA3A /* ViewController.m */; };
@@ -24,6 +25,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		07957BBA2C062AA4007A5EAE /* video.aac */ = {isa = PBXFileReference; lastKnownFileType = file; path = video.aac; sourceTree = "<group>"; };
 		07DF0A552BE92D3B005DAA3A /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		07DF0A582BE92D3B005DAA3A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		07DF0A592BE92D3B005DAA3A /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -107,6 +109,7 @@
 		07F5BC602BF0DA76003C97BF /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				07957BBA2C062AA4007A5EAE /* video.aac */,
 				07F5BC8A2BFCF481003C97BF /* 几个你_薛之谦.aac */,
 				07F5BC612BF0DA76003C97BF /* noise.pcm */,
 				07F5BC622BF0DA76003C97BF /* china-x.pcm */,
@@ -194,6 +197,7 @@
 				07DF0A682BE92D41005DAA3A /* LaunchScreen.storyboard in Resources */,
 				07F5BC652BF0DA76003C97BF /* china-x.pcm in Resources */,
 				07F5BC662BF0DA76003C97BF /* color_X_3D.mp3 in Resources */,
+				07957BBB2C062AA4007A5EAE /* video.aac in Resources */,
 				07F5BC8B2BFCF481003C97BF /* 几个你_薛之谦.aac in Resources */,
 				07F5BC642BF0DA76003C97BF /* noise.pcm in Resources */,
 				07DF0A652BE92D41005DAA3A /* Assets.xcassets in Resources */,

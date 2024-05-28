@@ -250,7 +250,8 @@ CCDAudioPlayerDelegate
         [self.recorderView updateStateInfo:@"player stop"];
     } else {
         //ffplay -i /Users/shinianzhiqian/Desktop/pig/Audio/Example/Example/Resources/china-x.pcm -f s16le -ac 1 -ar 44100
-        NSURL *audioURL = [[NSBundle mainBundle] URLForResource:@"几个你_薛之谦" withExtension:@"aac"];//44100
+        NSURL *audioURL = [[NSBundle mainBundle] URLForResource:@"video" withExtension:@"aac"];//44100,2 解码正常
+//        NSURL *audioURL = [[NSBundle mainBundle] URLForResource:@"几个你_薛之谦" withExtension:@"aac"];//44100,2 解码异常
         NSInteger sampleRate = 44100;
         
         if (self.filePath.length > 0) {
