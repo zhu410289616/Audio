@@ -95,7 +95,36 @@ AudioStreamBasicDescription CCDAudioCreateASBD_MP3(NSInteger sampleRate, NSInteg
     return audioFormat;
 }
 
-void CCDAudioResetAudioBuffer(AudioBufferList *bufferList)
+AudioBufferList *__attribute__((overloadable)) CCDAudioBufferAlloc(NSInteger channels, NSInteger sizePerChannel)
+{
+    return CCDAudioBufferAlloc(channels, NULL, sizePerChannel);
+}
+
+AudioBufferList *__attribute__((overloadable)) CCDAudioBufferAlloc(NSInteger channels, void * _Nullable bytesPerChannel, NSInteger sizePerChannel)
+{
+    void *bytes = (void *)bytesPerChannel;
+    NSInteger size = sizePerChannel;
+    
+    NSInteger inBufferListSize = sizeof(AudioBufferList) + (channels - 1) * sizeof(AudioBuffer);
+    AudioBufferList *inAudioBufferList = malloc(inBufferListSize);
+    memset(inAudioBufferList, 0, inBufferListSize);
+    
+    inAudioBufferList->mNumberBuffers = (UInt32)channels;
+    for (UInt32 i=0; i<channels; i++) {
+        uint8_t *buffer = (uint8_t *)malloc(size);
+        memset(buffer, 0, size);
+        if (NULL != bytes) {
+            memcpy(buffer, bytes, size);
+        }
+        
+        inAudioBufferList->mBuffers[i].mNumberChannels = 1;
+        inAudioBufferList->mBuffers[i].mData = buffer;
+        inAudioBufferList->mBuffers[i].mDataByteSize = (UInt32)size;
+    }
+    return inAudioBufferList;
+}
+
+void CCDAudioBufferReset(AudioBufferList *bufferList)
 {
     if (NULL == bufferList) {
         return;
@@ -108,7 +137,7 @@ void CCDAudioResetAudioBuffer(AudioBufferList *bufferList)
     }
 }
 
-void CCDAudioReleaseAudioBuffer(AudioBufferList *bufferList)
+void CCDAudioBufferRelease(AudioBufferList *bufferList)
 {
     if (NULL == bufferList) {
         return;
@@ -118,8 +147,11 @@ void CCDAudioReleaseAudioBuffer(AudioBufferList *bufferList)
         if (bufferList->mBuffers[i].mData) {
             free(bufferList->mBuffers[i].mData);
             bufferList->mBuffers[i].mData = NULL;
+            bufferList->mBuffers[i].mDataByteSize = 0;
         }
     }
+    free(bufferList);
+    bufferList = NULL;
 }
 
 @implementation CCDAudioUtil

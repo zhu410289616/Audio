@@ -91,7 +91,7 @@
 - (void)cleanup
 {
     // free
-    CCDAudioReleaseAudioBuffer(self.inBufferList);
+    CCDAudioBufferRelease(self.inBufferList);
 //    CCDAudioReleaseAudioBuffer(self.outBufferList);
     
     if (_audioConverter) {
@@ -151,7 +151,7 @@
     OSStatus status = AudioConverterFillComplexBuffer(_audioConverter, inInputDataProc, inAudioBufferList, &ioOutputDataPacketSize, outAudioBufferList, NULL);
     if (status != noErr) {
         CCDAudioLogE(@"AudioConverterFillComplexBuffer: %@", @(status));
-        CCDAudioResetAudioBuffer(self.outBufferList);
+        CCDAudioBufferReset(self.outBufferList);
         return NULL;
     }
     
@@ -227,7 +227,7 @@ OSStatus inInputDataProc(AudioConverterRef inAudioConverter,
     OSStatus status = AudioConverterFillComplexBuffer(_audioConverter, inputDataProc, (__bridge void *)(self), &ioOutputDataPacketSize, outAudioBufferList, NULL);
     if (status != noErr) {
         CCDAudioLogE(@"AudioConverterFillComplexBuffer: %@", @(status));
-        CCDAudioResetAudioBuffer(self.outBufferList);
+        CCDAudioBufferReset(self.outBufferList);
         return NULL;
     }
     

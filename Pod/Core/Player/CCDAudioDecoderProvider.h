@@ -18,6 +18,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setup;
 - (void)cleanup;
 
+- (void)decodeRawData:(NSData *)rawData completion:(void (^)(AudioBufferList *outAudioBufferList))completion;
+
 - (AudioBufferList *)decodeRawData:(NSData *)rawData;
 
 @end

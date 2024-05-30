@@ -8,10 +8,13 @@
 #import "CCDAudioPlayerAACInput.h"
 #import "CCDAudioAACFileReader.h"
 #import "CCDAudioAACDecoder.h"
+#import "CCDAudioRawDecoder.h"
 #import "CCDAudioUtil.h"
 
 #import "QHDecodeByAudioConverter.h"
 #import "CCDAudioRecorderOutputPCM.h"
+
+#import <libextobjc/EXTScope.h>
 
 @interface CCDAudioPlayerAACInput ()
 
@@ -60,6 +63,7 @@
     NSInteger theChannels = self.audioFormat.mChannelsPerFrame;
     
     self.aacDecoder = [[CCDAudioAACDecoder alloc] init];
+    self.aacDecoder = [[CCDAudioRawDecoder alloc] init];
 //    self.aacDecoder = [[QHDecodeByAudioConverter alloc] init];
     self.aacDecoder.inASBD = CCDAudioCreateASBD_AAC(theSampleRate, theChannels);
     self.aacDecoder.outASBD = CCDAudioCreateASBD_PCM32(theSampleRate, theChannels);
@@ -77,13 +81,19 @@
     if (self.pcmDataBuffer.length < maxSize) {
         NSData *rawData = [self.aacReader readData];
         if (rawData) {
-            AudioBufferList *pcm = [self.aacDecoder decodeRawData:rawData];
-            if (pcm && pcm->mNumberBuffers > 0 && pcm->mBuffers[0].mData) {
-                
-                [self.outputTest write:pcm];
-                
-                [self.pcmDataBuffer appendBytes:pcm->mBuffers[0].mData length:pcm->mBuffers[0].mDataByteSize];
-            }
+            @weakify(self);
+            [self.aacDecoder decodeRawData:rawData completion:^(AudioBufferList * _Nonnull outAudioBufferList) {
+                @strongify(self);
+//                [self.outputTest write:outAudioBufferList];
+                [self.pcmDataBuffer appendBytes:outAudioBufferList->mBuffers[0].mData length:outAudioBufferList->mBuffers[0].mDataByteSize];
+            }];
+            
+//            AudioBufferList *pcm = [self.aacDecoder decodeRawData:rawData];
+//            if (pcm && pcm->mNumberBuffers > 0 && pcm->mBuffers[0].mData) {
+//                [self.outputTest write:pcm];
+//                [self.pcmDataBuffer appendBytes:pcm->mBuffers[0].mData length:pcm->mBuffers[0].mDataByteSize];
+//                CCDAudioBufferRelease(pcm);
+//            }
         }
     }
     
