@@ -7,6 +7,7 @@
 
 #import "CCDAUAudioPlayer.h"
 #import "CCDAudioDefines.h"
+#import "CCDAudioUtil.h"
 
 @interface CCDAUAudioPlayer ()
 
@@ -20,6 +21,14 @@
 @synthesize audioInput;
 @synthesize isRunning;
 @dynamic volume;
+
+- (void)dealloc
+{
+    if (_audioUnit) {
+        AudioComponentInstanceDispose(_audioUnit);
+        _audioUnit = NULL;
+    }
+}
 
 #pragma mark - CCDAudioPlayerProvider
 
@@ -51,6 +60,11 @@ static OSStatus CCDAUPlayCallback(void *inRefCon,
                                   AudioBufferList *ioData)
 {
     CCDAUAudioPlayer *player = (__bridge CCDAUAudioPlayer *)inRefCon;
+    NSInteger channels = player.audioInput.audioFormat.mChannelsPerFrame;
+    
+    for (NSInteger i=0; i<channels; i++) {
+        memset(ioData->mBuffers[i].mData, 0, ioData->mBuffers[i].mDataByteSize);
+    }
     
     __block void * buffer = NULL;
     __block NSInteger bufferSize = 0;
@@ -59,11 +73,7 @@ static OSStatus CCDAUPlayCallback(void *inRefCon,
         bufferSize = size;
     } maxSize:ioData->mBuffers[0].mDataByteSize];
     
-    NSInteger channels = player.audioInput.audioFormat.mChannelsPerFrame;
     if (bufferSize <= 0) {
-        for (NSInteger i=0; i<channels; i++) {
-            memset(ioData->mBuffers[i].mData, 0, ioData->mBuffers[0].mDataByteSize);
-        }
         dispatch_async(dispatch_get_main_queue(), ^{
             [player stop];
         });
@@ -72,7 +82,9 @@ static OSStatus CCDAUPlayCallback(void *inRefCon,
     
     // 复制数据到各个声道
     for (NSInteger i=0; i<channels; i++) {
-        memcpy(ioData->mBuffers[i].mData, buffer, bufferSize);
+//        memset(ioData->mBuffers[i].mData, 0, ioData->mBuffers[i].mDataByteSize);
+//        memcpy(ioData->mBuffers[i].mData, buffer, bufferSize);
+        ioData->mBuffers[i].mData = buffer;
         ioData->mBuffers[i].mDataByteSize = (UInt32)bufferSize;
     }
     return noErr;

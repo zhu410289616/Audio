@@ -521,6 +521,7 @@ CCDAudioPlayerDelegate
     NSString *info = [NSString stringWithFormat:@"playerDidStop: %@", player.audioInput.audioPath];
     [self.recorderView updateStateInfo:info];
     self.filePath = nil;
+    self.player = nil;
     [[AVAudioSession sharedInstance] setActive:NO error:nil];
 }
 

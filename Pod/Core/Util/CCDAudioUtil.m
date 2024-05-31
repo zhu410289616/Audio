@@ -143,7 +143,7 @@ void CCDAudioBufferRelease(AudioBufferList *bufferList)
     
     NSInteger number = bufferList->mNumberBuffers;
     for (NSInteger i=0; i<number; i++) {
-        if (bufferList->mBuffers[i].mData) {
+        if (NULL != bufferList->mBuffers[i].mData) {
             free(bufferList->mBuffers[i].mData);
             bufferList->mBuffers[i].mData = NULL;
         }
