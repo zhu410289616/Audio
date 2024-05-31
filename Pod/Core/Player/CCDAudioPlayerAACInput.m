@@ -11,9 +11,6 @@
 #import "CCDAudioRawDecoder.h"
 #import "CCDAudioUtil.h"
 
-#import "QHDecodeByAudioConverter.h"
-#import "CCDAudioRecorderOutputPCM.h"
-
 #import <libextobjc/EXTScope.h>
 
 @interface CCDAudioPlayerAACInput ()
@@ -23,9 +20,6 @@
 @property (nonatomic, strong) NSURL *audioURL;
 @property (nonatomic, strong) CCDAudioAACFileReader *aacReader;
 @property (nonatomic, strong) id<CCDAudioDecoderProvider> aacDecoder;
-
-/// 测试输出 pcm 数据
-@property (nonatomic, strong) CCDAudioRecorderOutputPCM *outputTest;
 
 @end
 
@@ -47,8 +41,6 @@
             theChannels = channels;
         }];
         _audioFormat = CCDAudioCreateASBD_PCM32(theSampleRate, theChannels);
-        
-        _outputTest = [[CCDAudioRecorderOutputPCM alloc] init];
     }
     return self;
 }
@@ -57,14 +49,11 @@
 
 - (void)begin
 {
-    [self.outputTest begin];
-    
     NSInteger theSampleRate = self.audioFormat.mSampleRate;
     NSInteger theChannels = self.audioFormat.mChannelsPerFrame;
     
-    self.aacDecoder = [[CCDAudioAACDecoder alloc] init];
+//    self.aacDecoder = [[CCDAudioAACDecoder alloc] init];
     self.aacDecoder = [[CCDAudioRawDecoder alloc] init];
-//    self.aacDecoder = [[QHDecodeByAudioConverter alloc] init];
     self.aacDecoder.inASBD = CCDAudioCreateASBD_AAC(theSampleRate, theChannels);
     self.aacDecoder.outASBD = CCDAudioCreateASBD_PCM32(theSampleRate, theChannels);
     [self.aacDecoder setup];
@@ -72,7 +61,6 @@
 
 - (void)end
 {
-    [self.outputTest end];
     [self.aacDecoder cleanup];
 }
 
@@ -81,16 +69,16 @@
     if (self.pcmDataBuffer.length < maxSize) {
         NSData *rawData = [self.aacReader readData];
         if (rawData) {
+            /// 方式一：通过block返回数据
             @weakify(self);
             [self.aacDecoder decodeRawData:rawData completion:^(AudioBufferList * _Nonnull outAudioBufferList) {
                 @strongify(self);
-//                [self.outputTest write:outAudioBufferList];
                 [self.pcmDataBuffer appendBytes:outAudioBufferList->mBuffers[0].mData length:outAudioBufferList->mBuffers[0].mDataByteSize];
             }];
             
+            /// 方式二：直接返回解码的PCM数据
 //            AudioBufferList *pcm = [self.aacDecoder decodeRawData:rawData];
 //            if (pcm && pcm->mNumberBuffers > 0 && pcm->mBuffers[0].mData) {
-//                [self.outputTest write:pcm];
 //                [self.pcmDataBuffer appendBytes:pcm->mBuffers[0].mData length:pcm->mBuffers[0].mDataByteSize];
 //                CCDAudioBufferRelease(pcm);
 //            }
@@ -107,7 +95,7 @@
         readSize = readData.length;
         // remain
         NSRange range = NSMakeRange(readSize, self.pcmDataBuffer.length - readSize);
-        self.pcmDataBuffer = [self.pcmDataBuffer subdataWithRange:range].mutableCopy;
+        self.pcmDataBuffer.data = [self.pcmDataBuffer subdataWithRange:range];
     } else {
         NSRange readRange = NSMakeRange(0, self.pcmDataBuffer.length);
         NSData *readData = [self.pcmDataBuffer subdataWithRange:readRange];
@@ -116,6 +104,8 @@
         // remain
         self.pcmDataBuffer = [NSMutableData data];
     }
+    
+    CCDAudioLogD(@"pcm data buffer size: %@", @(self.pcmDataBuffer.length));
     !callback ?: callback(buffer, readSize);
 }
 

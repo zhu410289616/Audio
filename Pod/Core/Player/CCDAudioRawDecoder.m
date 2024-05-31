@@ -107,39 +107,12 @@
 - (AudioBufferList *)decodeRawData:(NSData *)rawData
 {
     @autoreleasepool {
-        void *bytes = (void *)rawData.bytes;
-        NSInteger size = rawData.length;
-        return [self decodeRawBytes:bytes size:size];
+        UInt32 outChannels = self.outASBD.mChannelsPerFrame;
+        UInt32 outSize = 1024 * self.outASBD.mBytesPerFrame;
+        AudioBufferList *outAudioBufferList = CCDAudioBufferAlloc(outChannels, outSize);
+        [self decodeWith:rawData outAudioBufferList:outAudioBufferList];
+        return outAudioBufferList;
     }
-}
-
-- (AudioBufferList *)decodeRawBytes:(void *)bytes size:(NSInteger)size
-{
-    //设置输入
-    UInt32 inChannels = self.inASBD.mChannelsPerFrame;
-    AudioBufferList *inAudioBufferList = CCDAudioBufferAlloc(inChannels, bytes, size);
-    self.inBufferList = inAudioBufferList;
-    
-    //设置输出
-    UInt32 outChannels = self.outASBD.mChannelsPerFrame;
-    UInt32 outSize = 1024 * self.outASBD.mBytesPerFrame;
-    AudioBufferList *outAudioBufferList = CCDAudioBufferAlloc(outChannels, outSize);
-    
-    UInt32 ioOutputDataPacketSize = 1024;
-
-    /// 转码
-    /// status为-50：初始化audioConverter的channels数量和实际输入的数据的channels不匹配；
-    /// status为561015652：在inInputDataProc方法中需要填充outDataPacketDescription数据；
-    OSStatus status = AudioConverterFillComplexBuffer(_audioConverter, CCDAudioDecodeDataProc, (__bridge void *)(self), &ioOutputDataPacketSize, outAudioBufferList, NULL);
-    if (status != noErr) {
-        CCDAudioLogE(@"AudioConverterFillComplexBuffer: %@", @(status));
-        CCDAudioBufferRelease(inAudioBufferList);
-        CCDAudioBufferRelease(outAudioBufferList);
-        return NULL;
-    }
-    
-    CCDAudioBufferRelease(inAudioBufferList);
-    return outAudioBufferList;
 }
 
 - (void)decodeWith:(NSData *)inData outAudioBufferList:(AudioBufferList *)outAudioBufferList
@@ -172,17 +145,8 @@ OSStatus CCDAudioDecodeDataProc(AudioConverterRef inAudioConverter,
                                 AudioStreamPacketDescription **outDataPacketDescription,
                                 void *inUserData)
 {
-//    AudioBufferList audioBufferList = *(AudioBufferList *)inUserData;
     CCDAudioRawDecoder *context = (__bridge CCDAudioRawDecoder *)(inUserData);
     AudioBufferList *audioBufferList = context.inBufferList;
-    
-//    UInt32 outChannels = audioBufferList.mNumberBuffers;
-//    ioData->mNumberBuffers = outChannels;
-//    for (UInt32 i=0; i<outChannels; i++) {
-//        ioData->mBuffers[i].mNumberChannels = 1;
-//        ioData->mBuffers[i].mData = audioBufferList.mBuffers[i].mData;
-//        ioData->mBuffers[i].mDataByteSize = audioBufferList.mBuffers[i].mDataByteSize;
-//    }
     
     UInt32 size = audioBufferList->mBuffers[0].mDataByteSize;
     ioData->mNumberBuffers = 1;

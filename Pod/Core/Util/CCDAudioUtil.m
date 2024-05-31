@@ -126,29 +126,28 @@ AudioBufferList *__attribute__((overloadable)) CCDAudioBufferAlloc(NSInteger cha
 
 void CCDAudioBufferReset(AudioBufferList *bufferList)
 {
-    if (NULL == bufferList) {
-        return;
-    }
+    if (NULL == bufferList) { return; }
+    
     NSInteger number = bufferList->mNumberBuffers;
     for (NSInteger i=0; i<number; i++) {
         if (bufferList->mBuffers[i].mData) {
             memset(bufferList->mBuffers[i].mData, 0, bufferList->mBuffers[i].mDataByteSize);
         }
+        bufferList->mBuffers[i].mDataByteSize = 0;
     }
 }
 
 void CCDAudioBufferRelease(AudioBufferList *bufferList)
 {
-    if (NULL == bufferList) {
-        return;
-    }
+    if (NULL == bufferList) { return; }
+    
     NSInteger number = bufferList->mNumberBuffers;
     for (NSInteger i=0; i<number; i++) {
         if (bufferList->mBuffers[i].mData) {
             free(bufferList->mBuffers[i].mData);
             bufferList->mBuffers[i].mData = NULL;
-            bufferList->mBuffers[i].mDataByteSize = 0;
         }
+        bufferList->mBuffers[i].mDataByteSize = 0;
     }
     free(bufferList);
     bufferList = NULL;
