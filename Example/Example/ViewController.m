@@ -15,7 +15,7 @@
 #import <CCDAudio/CCDAUAudioPlayer.h>
 #import <CCDAudio/CCDAudioPlayerInputPCM.h>
 #import <CCDAudio/CCDAudioPlayerInputAAC.h>
-#import <CCDAudio/CCDAudioPlayerAACInput.h>
+#import <CCDAudio/CCDAudioPlayerInputMP3.h>
 
 //recorder
 #import <CCDAudio/CCDAVAudioRecorder.h>
@@ -44,6 +44,8 @@ typedef NS_ENUM(NSInteger, CCDAudioTestMenuType) {
     CCDAudioTestMenuTypeWebRTCNosieOut,
     CCDAudioTestMenuTypeAACEncoder,
     CCDAudioTestMenuTypeAACDecoder,
+    CCDAudioTestMenuTypeMP3Encoder,
+    CCDAudioTestMenuTypeMP3Decoder,
     CCDAudioTestMenuTypeUnknown
 };
 
@@ -121,6 +123,18 @@ CCDAudioPlayerDelegate
         @"content": @"AAC -> PCM 解码"
     }.mutableCopy;
     [self.menuList addObject:menuDic];
+    
+    menuDic = @{
+        @"menu_id": @(CCDAudioTestMenuTypeMP3Encoder),
+        @"content": @"PCM -> MP3 编码"
+    }.mutableCopy;
+    [self.menuList addObject:menuDic];
+    
+    menuDic = @{
+        @"menu_id": @(CCDAudioTestMenuTypeMP3Decoder),
+        @"content": @"MP3 -> PCM 解码"
+    }.mutableCopy;
+    [self.menuList addObject:menuDic];
 }
 
 - (void)viewDidLoad {
@@ -174,6 +188,12 @@ CCDAudioPlayerDelegate
         case CCDAudioTestMenuTypeAACDecoder:
             [self doAACPlayAction];
             break;
+        case CCDAudioTestMenuTypeMP3Encoder:
+            [self doMP3RecordAction];
+            break;
+        case CCDAudioTestMenuTypeMP3Decoder:
+            [self doMP3PlayAction];
+            break;
         default:
             break;
     }//switch
@@ -225,6 +245,43 @@ CCDAudioPlayerDelegate
 
 #pragma mark - action
 
+#pragma mark - MP3
+
+- (void)doMP3RecordAction
+{}
+
+- (void)doMP3PlayAction
+{
+    if (self.player.isRunning) {
+        [self.player stop];
+        [self.recorderView updateStateInfo:@"player stop"];
+    } else {
+        NSURL *audioURL = [[NSBundle mainBundle] URLForResource:@"color_X_3D" withExtension:@"mp3"];//44100,2 解码正常
+        
+        if (self.filePath.length > 0) {
+            audioURL = [NSURL fileURLWithPath:self.filePath];
+        }
+        
+        NSString *ext = audioURL.pathExtension;
+        id<CCDAudioPlayerInput> audioInput = nil;
+        if ([ext isEqualToString:@"mp3"]) {
+            CCDAudioPlayerInputMP3 *input = [[CCDAudioPlayerInputMP3 alloc] initWithURL:audioURL];
+            audioInput = input;
+            self.player = [[CCDAUAudioPlayer alloc] init];
+        }
+        
+        self.player.delegate = self;
+        self.player.audioInput = audioInput;
+        if (![self.player prepare]) {
+            CCDAudioLogE(@"player prepare failed");
+            [self.recorderView updateStateInfo:@"player prepare failed"];
+            return;
+        }
+        [self.player play];
+        [self.recorderView updateStateInfo:@"player start"];
+    }
+}
+
 #pragma mark - AAC
 
 - (void)doAACRecordAction
@@ -252,7 +309,6 @@ CCDAudioPlayerDelegate
         //ffplay -i /Users/shinianzhiqian/Desktop/pig/Audio/Example/Example/Resources/china-x.pcm -f s16le -ac 1 -ar 44100
         NSURL *audioURL = [[NSBundle mainBundle] URLForResource:@"video" withExtension:@"aac"];//44100,2 解码正常
 //        NSURL *audioURL = [[NSBundle mainBundle] URLForResource:@"几个你_薛之谦" withExtension:@"aac"];//44100,2 解码异常
-        NSInteger sampleRate = 44100;
         
         if (self.filePath.length > 0) {
             audioURL = [NSURL fileURLWithPath:self.filePath];
@@ -261,11 +317,7 @@ CCDAudioPlayerDelegate
         NSString *ext = audioURL.pathExtension;
         id<CCDAudioPlayerInput> audioInput = nil;
         if ([ext isEqualToString:@"aac"]) {
-//            CCDAudioPlayerInputAAC *input = [[CCDAudioPlayerInputAAC alloc] initWithURL:audioURL];
-//            [input setupAudioFormat:sampleRate];
-            
-            CCDAudioPlayerAACInput *input = [[CCDAudioPlayerAACInput alloc] initWithURL:audioURL];
-            
+            CCDAudioPlayerInputAAC *input = [[CCDAudioPlayerInputAAC alloc] initWithURL:audioURL];
             audioInput = input;
             self.player = [[CCDAUAudioPlayer alloc] init];
         }
@@ -310,7 +362,6 @@ CCDAudioPlayerDelegate
             self.player = [[CCDAUAudioPlayer alloc] init];
         } else if ([ext isEqualToString:@"aac"]) {
             CCDAudioPlayerInputAAC *input = [[CCDAudioPlayerInputAAC alloc] initWithURL:audioURL];
-            input.audioFormat = [self pcmAudioFormat:sampleRate];
             audioInput = input;
             self.player = [[CCDAUAudioPlayer alloc] init];
         } else if ([ext isEqualToString:@"mp3"]

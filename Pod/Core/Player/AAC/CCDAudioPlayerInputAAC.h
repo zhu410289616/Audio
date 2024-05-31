@@ -1,8 +1,8 @@
 //
-//  CCDAudioPlayerAACInput.h
+//  CCDAudioPlayerInputAAC.h
 //  CCDAudio
 //
-//  Created by 十年之前 on 2024/5/26.
+//  Created by 十年之前 on 2024/5/20.
 //
 
 #import <Foundation/Foundation.h>
@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface CCDAudioPlayerAACInput : NSObject <CCDAudioPlayerDataInput>
+@interface CCDAudioPlayerInputAAC : NSObject <CCDAudioPlayerDataInput>
 
 - (instancetype)initWithURL:(NSURL *)audioURL;
 
