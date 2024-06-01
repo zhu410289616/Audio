@@ -24,7 +24,55 @@
 
 - (void)dealloc
 {
+    [self cleanupAudioUnit];
+}
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        [self setupAudioUnit];
+    }
+    return self;
+}
+
+- (void)setupAudioUnit
+{
+    // init audio unit
+    AudioComponentDescription audioDesc;
+    audioDesc.componentType = kAudioUnitType_Output;
+    audioDesc.componentSubType = kAudioUnitSubType_RemoteIO;
+    audioDesc.componentManufacturer = kAudioUnitManufacturer_Apple;
+    audioDesc.componentFlags = 0;
+    audioDesc.componentFlagsMask = 0;
+    AudioComponent component = AudioComponentFindNext(NULL, &audioDesc);
+    AudioComponentInstanceNew(component, &_audioUnit);
+    
+    AURenderCallbackStruct playCallback;
+    playCallback.inputProc = CCDAUPlayCallback;
+    playCallback.inputProcRefCon = (__bridge void *)self;
+    
+    OSStatus status = AudioUnitSetProperty(_audioUnit,
+                         kAudioUnitProperty_SetRenderCallback,
+                         kAudioUnitScope_Input,
+                         0,/**OUTPUT_BUS*/
+                         &playCallback,
+                         sizeof(playCallback));
+    if (status != noErr) {
+        CCDAudioLogE(@"kAudioUnitProperty_SetRenderCallback: %@", @(status));
+        return;
+    }
+    
+    status = AudioUnitInitialize(_audioUnit);
+    if (status != noErr) {
+        CCDAudioLogE(@"AudioUnitInitialize: %@", @(status));
+    }
+}
+
+- (void)cleanupAudioUnit
+{
     if (_audioUnit) {
+        AudioUnitUninitialize(_audioUnit);
         AudioComponentInstanceDispose(_audioUnit);
         _audioUnit = NULL;
     }
@@ -82,9 +130,7 @@ static OSStatus CCDAUPlayCallback(void *inRefCon,
     
     // 复制数据到各个声道
     for (NSInteger i=0; i<channels; i++) {
-//        memset(ioData->mBuffers[i].mData, 0, ioData->mBuffers[i].mDataByteSize);
-//        memcpy(ioData->mBuffers[i].mData, buffer, bufferSize);
-        ioData->mBuffers[i].mData = buffer;
+        memcpy(ioData->mBuffers[i].mData, buffer, bufferSize);
         ioData->mBuffers[i].mDataByteSize = (UInt32)bufferSize;
     }
     return noErr;
@@ -95,16 +141,6 @@ static OSStatus CCDAUPlayCallback(void *inRefCon,
     if ([self.delegate respondsToSelector:@selector(playerWillStart:)]) {
         [self.delegate playerWillStart:self];
     }
-    
-    // init audio unit
-    AudioComponentDescription audioDesc;
-    audioDesc.componentType = kAudioUnitType_Output;
-    audioDesc.componentSubType = kAudioUnitSubType_RemoteIO;
-    audioDesc.componentManufacturer = kAudioUnitManufacturer_Apple;
-    audioDesc.componentFlags = 0;
-    audioDesc.componentFlagsMask = 0;
-    AudioComponent component = AudioComponentFindNext(NULL, &audioDesc);
-    AudioComponentInstanceNew(component, &_audioUnit);
     
     // specify the recording format
     AudioStreamBasicDescription audioFormat = [self.audioInput audioFormat];
@@ -131,26 +167,6 @@ static OSStatus CCDAUPlayCallback(void *inRefCon,
         return NO;
     }
     
-    AURenderCallbackStruct playCallback;
-    playCallback.inputProc = CCDAUPlayCallback;
-    playCallback.inputProcRefCon = (__bridge void *)self;
-    
-    status = AudioUnitSetProperty(_audioUnit,
-                         kAudioUnitProperty_SetRenderCallback,
-                         kAudioUnitScope_Input,
-                         0,/**OUTPUT_BUS*/
-                         &playCallback,
-                         sizeof(playCallback));
-    if (status != noErr) {
-        CCDAudioLogE(@"kAudioUnitProperty_SetRenderCallback: %@", @(status));
-        return NO;
-    }
-    
-    status = AudioUnitInitialize(_audioUnit);
-    if (status != noErr) {
-        CCDAudioLogE(@"AudioUnitInitialize: %@", @(status));
-        return NO;
-    }
     return YES;
 }
 
@@ -164,9 +180,13 @@ static OSStatus CCDAUPlayCallback(void *inRefCon,
     [self.audioInput begin];
     OSStatus status = AudioOutputUnitStart(self.audioUnit);
     CCDAudioLogD(@"AudioOutputUnitStart: %@", @(status));
-    if (status != noErr && [self.delegate respondsToSelector:@selector(playerWithError:)]) {
-        NSError *error = CCDAudioMakeError(status, @"AudioOutputUnitStart");
-        [self.delegate playerWithError:error];
+    if (status != noErr) {
+        if ([self.delegate respondsToSelector:@selector(playerWithError:)]) {
+            NSError *error = CCDAudioMakeError(status, @"AudioOutputUnitStart");
+            [self.delegate playerWithError:error];
+        }
+        AudioOutputUnitStop(self.audioUnit);
+        return;
     }
     
     if ([self.delegate respondsToSelector:@selector(playerDidStart:)]) {
