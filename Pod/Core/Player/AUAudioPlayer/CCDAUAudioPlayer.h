@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface CCDAUAudioPlayer : NSObject <CCDAudioPlayerProvider>
 
 @property (nonatomic, strong) id<CCDAudioPlayerDataInput> audioInput;
+@property (nonatomic,   copy) CCDAudioUnitPlayCallback viewer;
 
 @end
 

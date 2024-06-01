@@ -132,7 +132,6 @@
     }
     
     CCDAudioLogD(@"buffer remain length: %@, read size: %@", @([self.pcmBuffers[0] length]), @(readSize));
-    !self.viewer ?: self.viewer(audioBufferList, readSize);
     !callback ?: callback(audioBufferList, readSize);
 //    CCDAudioBufferRelease(audioBufferList);
 }

@@ -37,7 +37,7 @@
             theSampleRate = sampleRate;
             theChannels = channels;
         }];
-        _audioFormat = CCDAudioCreateASBD_PCM32(theSampleRate, theChannels);
+        _audioFormat = CCDAudioCreateASBD_PCM16(theSampleRate, theChannels);
     }
     return self;
 }
@@ -51,13 +51,18 @@
     
     self.decoder = [[CCDAudioRawDecoder alloc] init];
     self.decoder.inASBD = CCDAudioCreateASBD_MP3(theSampleRate, theChannels);
-    self.decoder.outASBD = CCDAudioCreateASBD_PCM32(theSampleRate, theChannels);
+    self.decoder.outASBD = CCDAudioCreateASBD_PCM16(theSampleRate, theChannels);
     [self.decoder setup];
 }
 
 - (void)end
 {
     [self.decoder cleanup];
+}
+
+- (void)input:(CCDAudioUnitPlayCallback)callback bufferSize:(NSInteger)bufferSize
+{
+    
 }
 
 - (void)read:(CCDAudioPlayerInCallback)callback maxSize:(NSInteger)maxSize

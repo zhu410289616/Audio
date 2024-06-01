@@ -80,6 +80,10 @@ static OSStatus CCDAUPlayCallback(void *inRefCon,
         memcpy(ioData->mBuffers[i].mData, buffer->mData, buffer->mDataByteSize);
         ioData->mBuffers[i].mDataByteSize = buffer->mDataByteSize;
     }
+    
+    // 显示实时波形
+    !player.viewer ?: player.viewer(ioData, bufferSize);
+    
     return noErr;
 }
 

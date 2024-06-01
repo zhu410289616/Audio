@@ -8,6 +8,7 @@
 #import "ViewController.h"
 #import "CCDRecorderView.h"
 
+#import <CCDAudio/CCDAudioUtil.h>
 #import <CCDAudio/CCDAudioSpectrumAnalyzer.h>
 
 //player
@@ -67,7 +68,6 @@ CCDAudioPlayerDelegate
 @property (nonatomic, strong) CADisplayLink *meterTimer;
 
 @property (nonatomic, strong) id<CCDAudioPlayerProvider> player;
-@property (nonatomic, assign) AudioStreamBasicDescription audioFormat;
 
 //音效
 @property (nonatomic, assign) int fftSize;
@@ -330,15 +330,15 @@ CCDAudioPlayerDelegate
         id<CCDAudioPlayerInput> audioInput = nil;
         if ([ext isEqualToString:@"aac"]) {
             CCDAudioPlayerInputAAC *input = [[CCDAudioPlayerInputAAC alloc] initWithURL:audioURL];
+            audioInput = input;
+            
+            CCDAUAudioPlayer *player = [[CCDAUAudioPlayer alloc] init];
+            player.numberOfLoops = 2;
             @weakify(self);
-            input.viewer = ^(AudioBufferList * _Nullable inAudioBufferList, NSInteger inSize) {
+            player.viewer = ^(AudioBufferList * _Nullable inAudioBufferList, NSInteger inSize) {
                 @strongify(self);
                 [self updateSpectra:inAudioBufferList bufferSize:inSize];
             };
-            self.audioFormat = input.audioFormat;
-            audioInput = input;
-            CCDAUAudioPlayer *player = [[CCDAUAudioPlayer alloc] init];
-            player.numberOfLoops = 2;
             self.player = player;
         }
         
@@ -445,9 +445,17 @@ CCDAudioPlayerDelegate
         id<CCDAudioPlayerInput> audioInput = nil;
         if ([ext isEqualToString:@"pcm"]) {
             CCDAudioPlayerInputPCM *input = [[CCDAudioPlayerInputPCM alloc] initWithURL:audioURL];
-            input.audioFormat = [self pcmAudioFormat:sampleRate];
+            input.audioFormat = CCDAudioCreateASBD_PCM16(sampleRate, 1);
             audioInput = input;
-            self.player = [[CCDAUAudioPlayer alloc] init];
+            
+            CCDAUAudioPlayer *player = [[CCDAUAudioPlayer alloc] init];
+            player.numberOfLoops = 2;
+            @weakify(self);
+            player.viewer = ^(AudioBufferList * _Nullable inAudioBufferList, NSInteger inSize) {
+                @strongify(self);
+                [self updateSpectra:inAudioBufferList bufferSize:inSize];
+            };
+            self.player = player;
         } else if ([ext isEqualToString:@"mp3"]
                    || [ext isEqualToString:@"m4a"]) {
             CCDAVAudioPlayerInput *input = [[CCDAVAudioPlayerInput alloc] init];
@@ -562,7 +570,7 @@ CCDAudioPlayerDelegate
     }
     self.lastRenderTime = begintTime;
     
-    AudioStreamBasicDescription audioFormat = self.audioFormat;
+    AudioStreamBasicDescription audioFormat = self.player.audioInput.audioFormat;
     NSInteger bytesPerSample = audioFormat.mBytesPerFrame;
     NSInteger sampleRate = audioFormat.mSampleRate;//44100
     

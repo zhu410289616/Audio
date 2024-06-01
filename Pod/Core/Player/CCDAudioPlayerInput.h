@@ -18,18 +18,16 @@ typedef void(^CCDAudioPlayerInCallback)(void * _Nullable bytes, NSInteger size);
 @required
 
 @property (nonatomic, strong) NSString *audioPath;
+@property (nonatomic, assign) AudioStreamBasicDescription audioFormat;
 
 @end
 
 @protocol CCDAudioPlayerDataInput <CCDAudioPlayerInput>
 
-@property (nonatomic, assign) AudioStreamBasicDescription audioFormat;
-
 - (void)begin;
 - (void)end;
 
 - (void)input:(CCDAudioUnitPlayCallback)callback bufferSize:(NSInteger)bufferSize;
-- (void)read:(CCDAudioPlayerInCallback)callback maxSize:(NSInteger)maxSize;
 
 @end
 
