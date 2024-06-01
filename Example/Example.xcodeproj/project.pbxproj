@@ -16,6 +16,7 @@
 		07DF0A682BE92D41005DAA3A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 07DF0A662BE92D41005DAA3A /* LaunchScreen.storyboard */; };
 		07DF0A6B2BE92D41005DAA3A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 07DF0A6A2BE92D41005DAA3A /* main.m */; };
 		07DF0A792BEA7DA7005DAA3A /* CCDRecorderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 07DF0A772BEA7DA6005DAA3A /* CCDRecorderView.m */; };
+		07E4F17F2C0B578300E618F6 /* CCDPushStreamRTMP.m in Sources */ = {isa = PBXBuildFile; fileRef = 07E4F17E2C0B578300E618F6 /* CCDPushStreamRTMP.m */; };
 		07F5BC642BF0DA76003C97BF /* noise.pcm in Resources */ = {isa = PBXBuildFile; fileRef = 07F5BC612BF0DA76003C97BF /* noise.pcm */; };
 		07F5BC652BF0DA76003C97BF /* china-x.pcm in Resources */ = {isa = PBXBuildFile; fileRef = 07F5BC622BF0DA76003C97BF /* china-x.pcm */; };
 		07F5BC662BF0DA76003C97BF /* color_X_3D.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 07F5BC632BF0DA76003C97BF /* color_X_3D.mp3 */; };
@@ -41,6 +42,8 @@
 		07DF0A722BE93BA4005DAA3A /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 		07DF0A772BEA7DA6005DAA3A /* CCDRecorderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCDRecorderView.m; sourceTree = "<group>"; };
 		07DF0A782BEA7DA6005DAA3A /* CCDRecorderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCDRecorderView.h; sourceTree = "<group>"; };
+		07E4F17D2C0B578300E618F6 /* CCDPushStreamRTMP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCDPushStreamRTMP.h; sourceTree = "<group>"; };
+		07E4F17E2C0B578300E618F6 /* CCDPushStreamRTMP.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCDPushStreamRTMP.m; sourceTree = "<group>"; };
 		07F5BC612BF0DA76003C97BF /* noise.pcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = noise.pcm; sourceTree = "<group>"; };
 		07F5BC622BF0DA76003C97BF /* china-x.pcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = "china-x.pcm"; sourceTree = "<group>"; };
 		07F5BC632BF0DA76003C97BF /* color_X_3D.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = color_X_3D.mp3; sourceTree = "<group>"; };
@@ -85,6 +88,8 @@
 		07DF0A572BE92D3B005DAA3A /* Example */ = {
 			isa = PBXGroup;
 			children = (
+				07E4F17C2C0B578300E618F6 /* PushStream */,
+				07F5BC602BF0DA76003C97BF /* Resources */,
 				07DF0A582BE92D3B005DAA3A /* AppDelegate.h */,
 				07DF0A592BE92D3B005DAA3A /* AppDelegate.m */,
 				07DF0A782BEA7DA6005DAA3A /* CCDRecorderView.h */,
@@ -95,7 +100,6 @@
 				07DF0A5C2BE92D3B005DAA3A /* SceneDelegate.m */,
 				07DF0A5E2BE92D3B005DAA3A /* ViewController.h */,
 				07DF0A5F2BE92D3B005DAA3A /* ViewController.m */,
-				07F5BC602BF0DA76003C97BF /* Resources */,
 				07DF0A612BE92D3B005DAA3A /* Main.storyboard */,
 				07DF0A642BE92D41005DAA3A /* Assets.xcassets */,
 				07DF0A662BE92D41005DAA3A /* LaunchScreen.storyboard */,
@@ -104,6 +108,15 @@
 				07DF0A722BE93BA4005DAA3A /* PrefixHeader.pch */,
 			);
 			path = Example;
+			sourceTree = "<group>";
+		};
+		07E4F17C2C0B578300E618F6 /* PushStream */ = {
+			isa = PBXGroup;
+			children = (
+				07E4F17D2C0B578300E618F6 /* CCDPushStreamRTMP.h */,
+				07E4F17E2C0B578300E618F6 /* CCDPushStreamRTMP.m */,
+			);
+			path = PushStream;
 			sourceTree = "<group>";
 		};
 		07F5BC602BF0DA76003C97BF /* Resources */ = {
@@ -260,6 +273,7 @@
 				07DF0A5D2BE92D3B005DAA3A /* SceneDelegate.m in Sources */,
 				07F5BC812BF875CB003C97BF /* CCDTestNoiseProcessor.m in Sources */,
 				07DF0A792BEA7DA7005DAA3A /* CCDRecorderView.m in Sources */,
+				07E4F17F2C0B578300E618F6 /* CCDPushStreamRTMP.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -216,6 +216,8 @@
     char *aacEncoderBufferData = malloc(aacEncoderSize);
     memcpy(aacEncoderBufferData, outBufferList.mBuffers[0].mData, aacEncoderSize);
     
+    !self.aacCallback ?: self.aacCallback(&outBufferList, aacEncoderSize);
+    
     NSData *headerData = [self adtsDataForPacketLength:aacEncoderSize];
     [self write:(void *)headerData.bytes maxSize:7];
     [self write:aacEncoderBufferData maxSize:aacEncoderSize];

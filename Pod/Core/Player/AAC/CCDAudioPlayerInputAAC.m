@@ -86,6 +86,13 @@
 {
     if (self.currentBufferLength < bufferSize) {
         NSData *rawData = [self.reader readData];
+        
+        /// 回调 aac 数据，用于推流
+        if (rawData.length > 0) {
+            AudioBufferList *aac = CCDAudioBufferAlloc(self.channels, (void *)rawData.bytes, rawData.length);
+            !self.aacCallback ?: self.aacCallback(aac, rawData.length);
+        }
+        
         @weakify(self);
         [self.decoder decodeRawData:rawData completion:^(AudioBufferList * _Nonnull outAudioBufferList) {
             @strongify(self);

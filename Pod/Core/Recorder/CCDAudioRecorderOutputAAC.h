@@ -13,6 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface CCDAudioRecorderOutputAAC : NSObject <CCDAudioRecorderDataOutput>
 
+@property (nonatomic, copy) CCDAudioBufferListCallback aacCallback;
+
 - (void)setupAudioFormat:(NSInteger)sampleRate;
 
 @end

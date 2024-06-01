@@ -8,6 +8,8 @@
 #import "ViewController.h"
 #import "CCDRecorderView.h"
 
+#import "CCDPushStreamRTMP.h"
+
 #import <CCDAudio/CCDAudioUtil.h>
 #import <CCDAudio/CCDAudioSpectrumAnalyzer.h>
 
@@ -75,6 +77,8 @@ CCDAudioPlayerDelegate
 @property (nonatomic, assign) int fftSize;
 @property (nonatomic, strong) CCDAudioSpectrumAnalyzer *spectrumAnalyzer;
 @property (nonatomic, assign) NSTimeInterval lastRenderTime;
+
+@property (nonatomic, strong) CCDPushStreamRTMP *rtmp;
 
 @end
 
@@ -180,6 +184,12 @@ CCDAudioPlayerDelegate
     NSString *identifier = @"CCDTestTableViewCell";//NSStringFromClass(cellClass);
     [self.recorderView.tableView registerClass:cellClass forCellReuseIdentifier:identifier];
     [self.recorderView.tableView reloadData];
+    
+    // rtmp
+    self.rtmp = [[CCDPushStreamRTMP alloc] init];
+    NSString *rtmpUrl = @"rtmp://127.0.0.1:1935/live/room";
+    [self.rtmp connectWith:rtmpUrl];
+    DDLogInfo(@"rtmp url: %@", rtmpUrl);
 }
 
 #pragma mark - UITableViewDelegate
@@ -338,6 +348,23 @@ CCDAudioPlayerDelegate
         // m4a
         CCDAudioRecorderOutputAAC *output = [[CCDAudioRecorderOutputAAC alloc] init];
         [output setupAudioFormat:44100];
+        @weakify(self);
+        static BOOL sentAudioHeadOfRecord = NO;
+        output.aacCallback = ^(AudioBufferList * _Nullable audioBufferList, NSInteger size) {
+            @strongify(self);
+            if (!sentAudioHeadOfRecord) {
+                NSInteger sampleRateIndex = 4;
+                NSInteger channels = audioBufferList->mNumberBuffers;
+                char exeData[2];
+                exeData[0] = 0x10 | ((sampleRateIndex>>1) & 0x3);
+                exeData[1] = ((sampleRateIndex & 0x1)<<7) | ((/*numberOfChannels*/channels & 0xF) << 3);
+                NSData *headerData =[NSData dataWithBytes:exeData length:2];
+                [self.rtmp sendAudioHeader:headerData];
+                sentAudioHeadOfRecord = YES;
+            }
+            NSData *aacData = [NSData dataWithBytes:audioBufferList->mBuffers[0].mData length:audioBufferList->mBuffers[0].mDataByteSize];
+            [self.rtmp sendAudioData:aacData];
+        };
         
         [self setupAURecorder:output];
         [self startRecord];
@@ -363,11 +390,28 @@ CCDAudioPlayerDelegate
         id<CCDAudioPlayerInput> audioInput = nil;
         if ([ext isEqualToString:@"aac"]) {
             CCDAudioPlayerInputAAC *input = [[CCDAudioPlayerInputAAC alloc] initWithURL:audioURL];
+            static BOOL sentAudioHeadOfPlay = NO;
+            @weakify(self);
+            input.aacCallback = ^(AudioBufferList * _Nullable audioBufferList, NSInteger size) {
+                @strongify(self);
+                if (!sentAudioHeadOfPlay) {
+                    NSInteger sampleRateIndex = 4;
+                    NSInteger channels = audioBufferList->mNumberBuffers;
+                    char exeData[2];
+                    exeData[0] = 0x10 | ((sampleRateIndex>>1) & 0x3);
+                    exeData[1] = ((sampleRateIndex & 0x1)<<7) | ((/*numberOfChannels*/channels & 0xF) << 3);
+                    NSData *headerData =[NSData dataWithBytes:exeData length:2];
+                    [self.rtmp sendAudioHeader:headerData];
+                    sentAudioHeadOfPlay = YES;
+                }
+                NSData *aacData = [NSData dataWithBytes:audioBufferList->mBuffers[0].mData length:audioBufferList->mBuffers[0].mDataByteSize];
+                [self.rtmp sendAudioData:aacData];
+            };
             audioInput = input;
             
             CCDAUAudioPlayer *player = [[CCDAUAudioPlayer alloc] init];
             player.numberOfLoops = 2;
-            @weakify(self);
+//            @weakify(self);
             player.viewer = ^(AudioBufferList * _Nullable audioBufferList, NSInteger size) {
                 @strongify(self);
                 AudioStreamBasicDescription audioFormat = self.player.audioInput.audioFormat;

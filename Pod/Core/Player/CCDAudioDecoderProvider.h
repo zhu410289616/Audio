@@ -15,8 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) AudioStreamBasicDescription inASBD;
 @property (nonatomic, assign) AudioStreamBasicDescription outASBD;
 
-- (void)setup;
 - (void)cleanup;
+- (void)setup;
 
 - (void)decodeRawData:(NSData *)rawData completion:(void (^)(AudioBufferList *outAudioBufferList))completion;
 

@@ -12,6 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface CCDAudioPlayerInputAAC : NSObject <CCDAudioPlayerDataInput>
 
+@property (nonatomic, copy) CCDAudioBufferListCallback aacCallback;
+
 - (instancetype)initWithURL:(NSURL *)audioURL;
 
 @end

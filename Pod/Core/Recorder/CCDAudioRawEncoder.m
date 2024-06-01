@@ -7,6 +7,22 @@
 
 #import "CCDAudioRawEncoder.h"
 
+@interface CCDAudioRawEncoder ()
+
+@end
+
 @implementation CCDAudioRawEncoder
+
+@synthesize inASBD = _inASBD;
+@synthesize outASBD = _outASBD;
+
+- (void)cleanup
+{}
+
+- (void)setup
+{}
+
+- (void)encodeRawData:(NSData *)rawData completion:(void (^)(AudioBufferList *outAudioBufferList))completion
+{}
 
 @end
