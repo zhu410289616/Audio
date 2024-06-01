@@ -19,6 +19,15 @@
 
 @property (nonatomic, strong) NSURL *audioURL;
 @property (nonatomic, strong) id<CCDAudioReaderProvider> reader;
+/// 采样率；
+@property (nonatomic, assign) NSInteger sampleRate;
+/// 通道数；
+@property (nonatomic, assign) NSInteger channels;
+/// 缓存的多声道pcm数据；
+@property (nonatomic, strong) NSMutableArray *pcmBuffers;
+/// 缓存的pcm数据长度；
+@property (nonatomic, assign) NSInteger currentBufferLength;
+
 @property (nonatomic, strong) id<CCDAudioDecoderProvider> decoder;
 
 @end
@@ -40,6 +49,13 @@
             theSampleRate = sampleRate;
             theChannels = channels;
         }];
+        _sampleRate = theSampleRate;
+        _channels = theChannels;
+        _pcmBuffers = @[].mutableCopy;
+        for (NSInteger i=0; i<theChannels; i++) {
+            [_pcmBuffers addObject:[NSMutableData data]];
+        }
+        _currentBufferLength = 0;
         _audioFormat = CCDAudioCreateASBD_PCM32(theSampleRate, theChannels);
     }
     return self;
@@ -49,8 +65,10 @@
 
 - (void)begin
 {
-    NSInteger theSampleRate = self.audioFormat.mSampleRate;
-    NSInteger theChannels = self.audioFormat.mChannelsPerFrame;
+    [self.reader open];
+    
+    NSInteger theSampleRate = self.sampleRate;
+    NSInteger theChannels = self.channels;
     
     self.decoder = [[CCDAudioRawDecoder alloc] init];
     self.decoder.inASBD = CCDAudioCreateASBD_AAC(theSampleRate, theChannels);
@@ -60,7 +78,61 @@
 
 - (void)end
 {
+    [self.reader close];
     [self.decoder cleanup];
+}
+
+- (void)input:(CCDAudioUnitPlayCallback)callback bufferSize:(NSInteger)bufferSize
+{
+    if (self.currentBufferLength < bufferSize) {
+        NSData *rawData = [self.reader readData];
+        @weakify(self);
+        [self.decoder decodeRawData:rawData completion:^(AudioBufferList * _Nonnull outAudioBufferList) {
+            @strongify(self);
+            for (NSInteger i=0; i<outAudioBufferList->mNumberBuffers; i++) {
+                NSMutableData *pcmBuffer = self.pcmBuffers[i];
+                [pcmBuffer appendBytes:outAudioBufferList->mBuffers[i].mData length:outAudioBufferList->mBuffers[i].mDataByteSize];
+            }
+            self.currentBufferLength = [self.pcmBuffers[0] length];
+        }];
+    }
+    
+    NSArray *pcmBuffers = self.pcmBuffers;
+    NSInteger readSize = 0;
+    if (self.currentBufferLength > bufferSize) {
+        readSize = bufferSize;
+    } else {
+        readSize = self.currentBufferLength;
+    }
+    self.currentBufferLength = self.currentBufferLength - readSize;
+    if (readSize == 0) {
+        !callback ?: callback(NULL, 0);
+        return;
+    }
+    
+    NSInteger channels = self.channels;
+    AudioBufferList *audioBufferList = CCDAudioBufferAlloc(channels);
+    
+    NSRange readRange = NSMakeRange(0, readSize);
+    for (UInt32 i=0; i<channels; i++) {
+        NSMutableData *pcmBuffer = pcmBuffers[i];
+        NSData *readData = [pcmBuffer subdataWithRange:readRange];
+        
+        uint8_t *buffer = (uint8_t *)malloc(readSize);
+        memset(buffer, 0, readSize);
+        memcpy(buffer, readData.bytes, readSize);
+        
+        audioBufferList->mBuffers[i].mNumberChannels = 1;
+        audioBufferList->mBuffers[i].mData = buffer;
+        audioBufferList->mBuffers[i].mDataByteSize = (UInt32)readSize;
+        
+        // remain
+        NSRange remainRange = NSMakeRange(readSize, pcmBuffer.length - readSize);
+        pcmBuffer.data = [pcmBuffer subdataWithRange:remainRange];
+    }
+    
+    CCDAudioLogD(@"buffer remain length: %@, read size: %@", @([self.pcmBuffers[0] length]), @(readSize));
+    !callback ?: callback(audioBufferList, readSize);
 }
 
 - (void)read:(CCDAudioPlayerInCallback)callback maxSize:(NSInteger)maxSize

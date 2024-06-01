@@ -95,6 +95,15 @@ AudioStreamBasicDescription CCDAudioCreateASBD_MP3(NSInteger sampleRate, NSInteg
     return audioFormat;
 }
 
+AudioBufferList *__attribute__((overloadable)) CCDAudioBufferAlloc(NSInteger channels)
+{
+    NSInteger audioBufferListSize = sizeof(AudioBufferList) + (channels - 1) * sizeof(AudioBuffer);
+    AudioBufferList *audioBufferList = malloc(audioBufferListSize);
+    memset(audioBufferList, 0, audioBufferListSize);
+    audioBufferList->mNumberBuffers = (UInt32)channels;
+    return audioBufferList;
+}
+
 AudioBufferList *__attribute__((overloadable)) CCDAudioBufferAlloc(NSInteger channels, NSInteger sizePerChannel)
 {
     return CCDAudioBufferAlloc(channels, NULL, sizePerChannel);

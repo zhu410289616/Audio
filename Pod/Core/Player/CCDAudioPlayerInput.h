@@ -10,6 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef void(^CCDAudioUnitPlayCallback)(AudioBufferList * _Nullable inAudioBufferList, NSInteger inSize);
 typedef void(^CCDAudioPlayerInCallback)(void * _Nullable bytes, NSInteger size);
 
 @protocol CCDAudioPlayerInput <NSObject>
@@ -27,6 +28,7 @@ typedef void(^CCDAudioPlayerInCallback)(void * _Nullable bytes, NSInteger size);
 - (void)begin;
 - (void)end;
 
+- (void)input:(CCDAudioUnitPlayCallback)callback bufferSize:(NSInteger)bufferSize;
 - (void)read:(CCDAudioPlayerInCallback)callback maxSize:(NSInteger)maxSize;
 
 @end

@@ -320,6 +320,7 @@ CCDAudioPlayerDelegate
             CCDAudioPlayerInputAAC *input = [[CCDAudioPlayerInputAAC alloc] initWithURL:audioURL];
             audioInput = input;
             self.player = [[CCDAUAudioPlayer alloc] init];
+            self.player.numberOfLoops = 2;
         }
         
         self.player.delegate = self;

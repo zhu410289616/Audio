@@ -19,8 +19,9 @@
 
 @synthesize delegate;
 @synthesize audioInput;
-@synthesize isRunning;
-@dynamic volume;
+@synthesize isRunning = _isRunning;
+@synthesize volume = _volume;
+@synthesize numberOfLoops = _numberOfLoops;
 
 - (void)dealloc
 {
@@ -31,9 +32,55 @@
 {
     self = [super init];
     if (self) {
+        _numberOfLoops = 1;
         [self setupAudioUnit];
     }
     return self;
+}
+
+#pragma mark - audio unit
+
+static OSStatus CCDAUPlayCallback(void *inRefCon,
+                                  AudioUnitRenderActionFlags *ioActionFlags,
+                                  const AudioTimeStamp *inTimeStamp,
+                                  UInt32 inBusNumber,
+                                  UInt32 inNumberFrames,
+                                  AudioBufferList *ioData)
+{
+    CCDAUAudioPlayer *player = (__bridge CCDAUAudioPlayer *)inRefCon;
+    id<CCDAudioPlayerDataInput> audioInput = player.audioInput;
+    NSInteger channels = audioInput.audioFormat.mChannelsPerFrame;
+    
+    for (NSInteger i=0; i<channels; i++) {
+        memset(ioData->mBuffers[i].mData, 0, ioData->mBuffers[i].mDataByteSize);
+    }
+    
+    __block AudioBufferList *inData;
+    __block NSInteger bufferSize = 0;
+    [audioInput input:^(AudioBufferList * _Nullable inAudioBufferList, NSInteger inSize) {
+        inData = inAudioBufferList;
+        bufferSize = inSize;
+    } bufferSize:ioData->mBuffers[0].mDataByteSize];
+    
+    if (bufferSize <= 0) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            player.numberOfLoops--;
+            if (player.numberOfLoops > 0) {
+                [player replay];
+            } else {
+                [player stop];
+            }
+        });
+        return noErr;
+    }
+    
+    // 复制数据到各个声道
+    for (NSInteger i=0; i<inData->mNumberBuffers; i++) {
+        AudioBuffer *buffer = &inData->mBuffers[i];
+        memcpy(ioData->mBuffers[i].mData, buffer->mData, buffer->mDataByteSize);
+        ioData->mBuffers[i].mDataByteSize = buffer->mDataByteSize;
+    }
+    return noErr;
 }
 
 - (void)setupAudioUnit
@@ -78,63 +125,19 @@
     }
 }
 
+- (void)replay
+{
+    [self.audioInput end];
+    [self.audioInput begin];
+    OSStatus status = noErr;
+    status = AudioOutputUnitStop(_audioUnit);
+//    status = AudioUnitUninitialize(_audioUnit);
+//    status = AudioUnitInitialize(_audioUnit);
+    status = AudioOutputUnitStart(_audioUnit);
+    CCDAudioLogD(@"replay AudioOutputUnitStart: %@", @(status));
+}
+
 #pragma mark - CCDAudioPlayerProvider
-
-- (void)setVolume:(float)volume
-{
-//    self.player.volume = volume;
-}
-
-- (float)volume
-{
-    return 0.0f;
-}
-
-- (void)setNumberOfLoops:(NSInteger)numberOfLoops
-{
-//    self.player.numberOfLoops = numberOfLoops;
-}
-
-- (NSInteger)numberOfLoops
-{
-    return 0;
-}
-
-static OSStatus CCDAUPlayCallback(void *inRefCon,
-                                  AudioUnitRenderActionFlags *ioActionFlags,
-                                  const AudioTimeStamp *inTimeStamp,
-                                  UInt32 inBusNumber,
-                                  UInt32 inNumberFrames,
-                                  AudioBufferList *ioData)
-{
-    CCDAUAudioPlayer *player = (__bridge CCDAUAudioPlayer *)inRefCon;
-    NSInteger channels = player.audioInput.audioFormat.mChannelsPerFrame;
-    
-    for (NSInteger i=0; i<channels; i++) {
-        memset(ioData->mBuffers[i].mData, 0, ioData->mBuffers[i].mDataByteSize);
-    }
-    
-    __block void * buffer = NULL;
-    __block NSInteger bufferSize = 0;
-    [player.audioInput read:^(void * _Nullable bytes, NSInteger size) {
-        buffer = bytes;
-        bufferSize = size;
-    } maxSize:ioData->mBuffers[0].mDataByteSize];
-    
-    if (bufferSize <= 0) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [player stop];
-        });
-        return noErr;
-    }
-    
-    // 复制数据到各个声道
-    for (NSInteger i=0; i<channels; i++) {
-        memcpy(ioData->mBuffers[i].mData, buffer, bufferSize);
-        ioData->mBuffers[i].mDataByteSize = (UInt32)bufferSize;
-    }
-    return noErr;
-}
 
 - (BOOL)prepare
 {

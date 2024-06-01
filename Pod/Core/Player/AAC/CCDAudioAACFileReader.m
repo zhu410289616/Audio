@@ -18,18 +18,13 @@
 
 - (void)dealloc
 {
-    if (_file) {
-        fclose(_file);
-        _file = NULL;
-    }
+    [self close];
 }
 
 - (instancetype)initWithFilePath:(NSString *)filePath
 {
     if (self = [super init]) {
         _filePath = filePath;
-        const char *filename = [filePath UTF8String];
-        _file = fopen(filename, "rb+");
     }
     return self;
 }
@@ -56,6 +51,20 @@
     
     free(head_buf); head_buf = NULL;
     fclose(file); file = NULL;
+}
+
+- (void)open
+{
+    const char *filename = [self.filePath UTF8String];
+    _file = fopen(filename, "rb+");
+}
+
+- (void)close
+{
+    if (_file) {
+        fclose(_file);
+        _file = NULL;
+    }
 }
 
 - (NSData *)readData

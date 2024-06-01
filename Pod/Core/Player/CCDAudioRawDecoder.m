@@ -24,6 +24,23 @@
 @synthesize inASBD = _inASBD;
 @synthesize outASBD = _outASBD;
 
+- (void)dealloc
+{
+    [self cleanup];
+}
+
+- (void)cleanup
+{
+    if (_currentASPD) {
+        free(_currentASPD);
+        _currentASPD = NULL;
+    }
+    if (_audioConverter) {
+        AudioConverterDispose(_audioConverter);
+        _audioConverter = NULL;
+    }
+}
+
 - (void)setup
 {
     self.currentASPD = malloc(sizeof(AudioStreamPacketDescription));
@@ -80,18 +97,6 @@
     return desc;
 }
 
-- (void)cleanup
-{
-    if (_currentASPD) {
-        free(_currentASPD);
-        _currentASPD = NULL;
-    }
-    if (_audioConverter) {
-        AudioConverterDispose(_audioConverter);
-        _audioConverter = NULL;
-    }
-}
-
 - (void)decodeRawData:(NSData *)rawData completion:(void (^)(AudioBufferList *outAudioBufferList))completion
 {
     @autoreleasepool {
@@ -117,7 +122,10 @@
 
 - (void)decodeWith:(NSData *)inData outAudioBufferList:(AudioBufferList *)outAudioBufferList
 {
-    if (inData.length == 0) { return; }
+    if (inData.length == 0) {
+        CCDAudioBufferReset(outAudioBufferList);
+        return;
+    }
     
     UInt32 inChannels = self.inASBD.mChannelsPerFrame;
     void *bytes = (void *)inData.bytes;

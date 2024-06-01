@@ -12,6 +12,9 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol CCDAudioReaderProvider <NSObject>
 
 - (void)readConfig:(void(^)(NSInteger sampleRate, NSInteger channels))completion;
+
+- (void)open;
+- (void)close;
 - (NSData *)readData;
 
 @end
