@@ -9,9 +9,9 @@
 
 @implementation CCDRecorderView
 
-- (instancetype)init
+- (instancetype)initWithFrame:(CGRect)frame
 {
-    self = [super init];
+    self = [super initWithFrame:frame];
     if (self) {
         self.backgroundColor = [UIColor lightGrayColor];
         
@@ -27,7 +27,8 @@
         _stateLabel.adjustsFontSizeToFitWidth = YES;
         [self addSubview:_stateLabel];
         
-        _spectrumView = [[CCDAudioSpectrumView alloc] init];
+        CGRect frame0 = CGRectMake(0, 0, frame.size.width, 100);
+        _spectrumView = [[CCDAudioSpectrumView alloc] initWithFrame:frame0];
         _spectrumView.backgroundColor = [UIColor clearColor];
         [self addSubview:_spectrumView];
         

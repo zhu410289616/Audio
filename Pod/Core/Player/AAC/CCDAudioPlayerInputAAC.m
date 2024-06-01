@@ -56,7 +56,7 @@
             [_pcmBuffers addObject:[NSMutableData data]];
         }
         _currentBufferLength = 0;
-        _audioFormat = CCDAudioCreateASBD_PCM32(theSampleRate, theChannels);
+        _audioFormat = CCDAudioCreateASBD_PCM16(theSampleRate, theChannels);
     }
     return self;
 }
@@ -72,7 +72,7 @@
     
     self.decoder = [[CCDAudioRawDecoder alloc] init];
     self.decoder.inASBD = CCDAudioCreateASBD_AAC(theSampleRate, theChannels);
-    self.decoder.outASBD = CCDAudioCreateASBD_PCM32(theSampleRate, theChannels);
+    self.decoder.outASBD = CCDAudioCreateASBD_PCM16(theSampleRate, theChannels);
     [self.decoder setup];
 }
 
@@ -132,7 +132,9 @@
     }
     
     CCDAudioLogD(@"buffer remain length: %@, read size: %@", @([self.pcmBuffers[0] length]), @(readSize));
+    !self.viewer ?: self.viewer(audioBufferList, readSize);
     !callback ?: callback(audioBufferList, readSize);
+//    CCDAudioBufferRelease(audioBufferList);
 }
 
 - (void)read:(CCDAudioPlayerInCallback)callback maxSize:(NSInteger)maxSize

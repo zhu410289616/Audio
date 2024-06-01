@@ -8,6 +8,8 @@
 #import "ViewController.h"
 #import "CCDRecorderView.h"
 
+#import <CCDAudio/CCDAudioSpectrumAnalyzer.h>
+
 //player
 #import <CCDAudio/CCDAVAudioPlayer.h>
 #import <CCDAudio/CCDAVAudioPlayerInput.h>
@@ -65,6 +67,12 @@ CCDAudioPlayerDelegate
 @property (nonatomic, strong) CADisplayLink *meterTimer;
 
 @property (nonatomic, strong) id<CCDAudioPlayerProvider> player;
+@property (nonatomic, assign) AudioStreamBasicDescription audioFormat;
+
+//音效
+@property (nonatomic, assign) int fftSize;
+@property (nonatomic, strong) CCDAudioSpectrumAnalyzer *spectrumAnalyzer;
+@property (nonatomic, assign) NSTimeInterval lastRenderTime;
 
 @end
 
@@ -141,7 +149,11 @@ CCDAudioPlayerDelegate
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    self.recorderView = [[CCDRecorderView alloc] init];
+    // spectrum analyzer
+    self.fftSize = 2048;
+    self.spectrumAnalyzer = [[CCDAudioSpectrumAnalyzer alloc] initWithFFTSize:self.fftSize];
+    
+    self.recorderView = [[CCDRecorderView alloc] initWithFrame:self.view.bounds];
     [self.view addSubview:self.recorderView];
     [self.recorderView mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.center.equalTo(self.view);
@@ -318,9 +330,16 @@ CCDAudioPlayerDelegate
         id<CCDAudioPlayerInput> audioInput = nil;
         if ([ext isEqualToString:@"aac"]) {
             CCDAudioPlayerInputAAC *input = [[CCDAudioPlayerInputAAC alloc] initWithURL:audioURL];
+            @weakify(self);
+            input.viewer = ^(AudioBufferList * _Nullable inAudioBufferList, NSInteger inSize) {
+                @strongify(self);
+                [self updateSpectra:inAudioBufferList bufferSize:inSize];
+            };
+            self.audioFormat = input.audioFormat;
             audioInput = input;
-            self.player = [[CCDAUAudioPlayer alloc] init];
-            self.player.numberOfLoops = 2;
+            CCDAUAudioPlayer *player = [[CCDAUAudioPlayer alloc] init];
+            player.numberOfLoops = 2;
+            self.player = player;
         }
         
         self.player.delegate = self;
@@ -531,6 +550,57 @@ CCDAudioPlayerDelegate
     CCDAudioLogD(@"playerWithError: %@", error);
     NSString *info = [NSString stringWithFormat:@"playerWithError: %@", error];
     [self.recorderView updateStateInfo:info];
+}
+
+#pragma mark - spectrum
+
+- (void)updateSpectra:(AudioBufferList *)audioBufferList bufferSize:(NSInteger)bufferSize
+{
+    double begintTime = CFAbsoluteTimeGetCurrent();
+    if (begintTime - self.lastRenderTime < 0.1) {
+        return;
+    }
+    self.lastRenderTime = begintTime;
+    
+    AudioStreamBasicDescription audioFormat = self.audioFormat;
+    NSInteger bytesPerSample = audioFormat.mBytesPerFrame;
+    NSInteger sampleRate = audioFormat.mSampleRate;//44100
+    
+    NSData *pcmData = [NSData dataWithBytes:audioBufferList->mBuffers[0].mData length:audioBufferList->mBuffers[0].mDataByteSize];
+    /// 根据 位深 复制数据；
+    /// 比如：单声道16位深度pcm数据 --> 双声道32位深度pcm数据；
+    NSInteger pcmLength = pcmData.length / bytesPerSample;
+    
+    // 缓存 双声道32位深度pcm数据
+    float stereoPcmBuffer[pcmLength];
+    memset(&stereoPcmBuffer, 0, pcmLength);
+    
+    for (NSInteger i=0; i<pcmLength; i++) {
+        short pcmValue = 0;
+        NSRange valueRange = NSMakeRange(i*bytesPerSample, bytesPerSample);
+//        NSData *valueData = [pcmData subdataWithRange:valueRange];
+//        memcpy(&pcmValue, valueData.bytes, sizeof(pcmValue));
+        [pcmData getBytes:&pcmValue range:valueRange];
+        stereoPcmBuffer[i] = pcmValue;
+    }
+    
+    AVAudioChannelLayout *channelLayout = [[AVAudioChannelLayout alloc] initWithLayoutTag:kAudioChannelLayoutTag_Stereo];
+    AVAudioFormat *format = [[AVAudioFormat alloc] initWithCommonFormat:AVAudioPCMFormatFloat32 sampleRate:sampleRate interleaved:NO channelLayout:channelLayout];
+    
+    AVAudioPCMBuffer *pcmBuffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:format frameCapacity:2048];
+    pcmBuffer.frameLength = pcmBuffer.frameCapacity;
+    
+    // 初始化数据区
+    for (AVAudioChannelCount i=0; i<format.channelCount; i++) {
+        memset(pcmBuffer.floatChannelData[i], 0, pcmBuffer.frameLength * format.streamDescription->mBytesPerFrame);
+        memcpy(pcmBuffer.floatChannelData[i], &stereoPcmBuffer, pcmLength);
+    }
+    
+    // pcm spectrum analyzer
+    NSArray *spectrums = [self.spectrumAnalyzer analyse:pcmBuffer withAmplitudeLevel:0.2];//0.2 调整动画幅度
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.recorderView.spectrumView updateSpectra:spectrums withStype:CCDAudioSpectraStyleRound];
+    });
 }
 
 #pragma mark - meter

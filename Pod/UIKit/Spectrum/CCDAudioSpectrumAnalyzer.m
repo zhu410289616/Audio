@@ -99,7 +99,7 @@
 #pragma mark - privte method
 
 #pragma mark - public method
-- (NSArray *)analyse:(AVAudioPCMBuffer *)buffer withAmplitudeLevel:(int)amplitudeLevel {
+- (NSArray *)analyse:(AVAudioPCMBuffer *)buffer withAmplitudeLevel:(float)amplitudeLevel {
     float bandWidth = (float)buffer.format.sampleRate / (float)(self.fftSize * 1.0);
     NSArray *channelsAmplitudes = CCDAudioSpectrumFFT(buffer, self.fftSetup, self.fftSize);
     NSUInteger count = channelsAmplitudes.count;//2

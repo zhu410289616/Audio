@@ -68,11 +68,12 @@
 {
     AudioStreamBasicDescription inputASBD = self.inASBD;
     AudioStreamBasicDescription outputASBD = self.outASBD;
+    OSType subType = inputASBD.mFormatID;
     
     // create an audio converter
     AudioConverterRef audioConverter;
-    AudioClassDescription hardwareClassDesc = [self classDescriptionWith:kAppleHardwareAudioCodecManufacturer];
-    AudioClassDescription softwareClassDesc = [self classDescriptionWith:kAppleSoftwareAudioCodecManufacturer];
+    AudioClassDescription hardwareClassDesc = [self classDescriptionWith:kAppleHardwareAudioCodecManufacturer subType:subType];
+    AudioClassDescription softwareClassDesc = [self classDescriptionWith:kAppleSoftwareAudioCodecManufacturer subType:subType];
 
     AudioClassDescription classDescs[] = {
         hardwareClassDesc,
@@ -87,12 +88,12 @@
     _audioConverter = audioConverter;
 }
 
-- (AudioClassDescription)classDescriptionWith:(OSType)manufacturer
+- (AudioClassDescription)classDescriptionWith:(OSType)manufacturer subType:(OSType)subType
 {
     AudioClassDescription desc;
     // Decoder
     desc.mType = kAudioDecoderComponentType;
-    desc.mSubType = kAudioFormatMPEG4AAC;
+    desc.mSubType = subType;
     desc.mManufacturer = manufacturer;
     return desc;
 }

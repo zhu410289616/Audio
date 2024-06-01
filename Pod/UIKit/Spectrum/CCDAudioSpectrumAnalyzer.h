@@ -30,7 +30,7 @@ FOUNDATION_EXPORT NSMutableArray *CCDASHighlightWaveform(NSArray *spectrum);
 @interface CCDAudioSpectrumAnalyzer : NSObject
 
 - (instancetype)initWithFFTSize:(int)fftSize;
-- (NSArray *)analyse:(AVAudioPCMBuffer *)buffer withAmplitudeLevel:(int)amplitudeLevel;
+- (NSArray *)analyse:(AVAudioPCMBuffer *)buffer withAmplitudeLevel:(float)amplitudeLevel;
 
 @end
 
