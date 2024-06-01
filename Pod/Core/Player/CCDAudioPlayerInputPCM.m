@@ -53,6 +53,11 @@
 {
     void *readBuffer = malloc(bufferSize);
     NSInteger readSize = [self.inputStream read:readBuffer maxLength:bufferSize];
+    if (readSize <= 0) {
+        !callback ?: callback(NULL, 0);
+        !readBuffer ?: free(readBuffer);
+        return;
+    }
     
     NSInteger channels = self.audioFormat.mChannelsPerFrame;
     AudioBufferList *audioBufferList = CCDAudioBufferAlloc(channels);

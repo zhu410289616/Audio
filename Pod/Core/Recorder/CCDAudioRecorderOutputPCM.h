@@ -10,15 +10,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void(^CCDAudioRecorderPCMCallback)(AudioBufferList *bufferList);
-
 @interface CCDAudioRecorderOutputPCM : NSObject <CCDAudioRecorderDataOutput>
 
-@property (nonatomic, copy) CCDAudioRecorderPCMCallback pcmCallback;
+@property (nonatomic, copy) CCDAudioBufferListCallback pcmCallback;
 
-- (instancetype)initWithSampleRate:(NSInteger)sampleRate;
-
-- (void)setupAudioFormat:(NSInteger)sampleRate;
 - (void)write:(void *)bytes maxSize:(NSInteger)maxSize;
 
 @end

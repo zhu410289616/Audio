@@ -6,24 +6,12 @@
 //
 
 #import "CCDTestNoiseProcessor.h"
-#import <CCDAudio/CCDWebRTCNoiseProcessor.h>
 
 @interface CCDTestNoiseProcessor ()
-
-@property (nonatomic, strong) CCDWebRTCNoiseProcessor *processor;
 
 @end
 
 @implementation CCDTestNoiseProcessor
-
-- (instancetype)initWithSampleRate:(NSInteger)sampleRate
-{
-    self = [super initWithSampleRate:sampleRate];
-    if (self) {
-        _processor = [[CCDWebRTCNoiseProcessor alloc] initWithSampleRate:sampleRate mode:2];
-    }
-    return self;
-}
 
 - (void)write:(AudioBufferList *)bufferList
 {
@@ -35,7 +23,7 @@
         NSData *pcmData = [NSData dataWithBytes:data length:dataSize];
         pcmData = [self.processor nsProcess:pcmData];
         if (pcmData) {
-            [self write:pcmData.bytes maxSize:pcmData.length];
+            [self write:(void *)pcmData.bytes maxSize:pcmData.length];
         } else {
             [self write:data maxSize:dataSize];
         }

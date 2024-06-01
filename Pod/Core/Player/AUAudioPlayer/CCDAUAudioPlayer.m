@@ -51,10 +51,6 @@ static OSStatus CCDAUPlayCallback(void *inRefCon,
     id<CCDAudioPlayerDataInput> audioInput = player.audioInput;
     NSInteger channels = audioInput.audioFormat.mChannelsPerFrame;
     
-    for (NSInteger i=0; i<channels; i++) {
-        memset(ioData->mBuffers[i].mData, 0, ioData->mBuffers[i].mDataByteSize);
-    }
-    
     __block AudioBufferList *inData;
     __block NSInteger bufferSize = 0;
     [audioInput input:^(AudioBufferList * _Nullable inAudioBufferList, NSInteger inSize) {
@@ -75,6 +71,8 @@ static OSStatus CCDAUPlayCallback(void *inRefCon,
     }
     
     // 复制数据到各个声道
+    /// 如何塞给 IO Unit 待播放的音频数据? RenderCallback!
+    /// 播放的 ioData 是已经初始化的，可以直接往里写数据
     for (NSInteger i=0; i<inData->mNumberBuffers; i++) {
         AudioBuffer *buffer = &inData->mBuffers[i];
         memcpy(ioData->mBuffers[i].mData, buffer->mData, buffer->mDataByteSize);

@@ -29,20 +29,16 @@
     return self;
 }
 
-- (void)setupAudioFormat:(NSInteger)sampleRate
-{
-    [super setupAudioFormat:sampleRate];
-    self.sampleRate = sampleRate;
-}
-
 - (void)begin
 {
     [super begin];
+    int sampleRate = self.audioFormat.mSampleRate;
+    
     //mp3压缩参数
     _lame = lame_init();
     lame_set_num_channels(_lame, 1);
-    lame_set_in_samplerate(_lame, (int)self.sampleRate);
-    lame_set_out_samplerate(_lame, (int)self.sampleRate);
+    lame_set_in_samplerate(_lame, sampleRate);
+    lame_set_out_samplerate(_lame, sampleRate);
     lame_set_brate(_lame, 128);
     lame_set_mode(_lame, JOINT_STEREO);
     lame_set_quality(_lame, 2);

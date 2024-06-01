@@ -43,12 +43,14 @@ typedef NS_ENUM(NSInteger, CCDAudioTestMenuType) {
     CCDAudioTestMenuTypeAVAudioRecorder,
     CCDAudioTestMenuTypeAQAudioRecorder,
     CCDAudioTestMenuTypeAUAudioRecorder,
-    CCDAudioTestMenuTypeWebRTCNosieIn,
-    CCDAudioTestMenuTypeWebRTCNosieOut,
+    CCDAudioTestMenuTypePCMEncoder,
+    CCDAudioTestMenuTypePCMDecoder,
     CCDAudioTestMenuTypeAACEncoder,
     CCDAudioTestMenuTypeAACDecoder,
     CCDAudioTestMenuTypeMP3Encoder,
     CCDAudioTestMenuTypeMP3Decoder,
+    CCDAudioTestMenuTypeWebRTCNosieIn,
+    CCDAudioTestMenuTypeWebRTCNosieOut,
     CCDAudioTestMenuTypeUnknown
 };
 
@@ -109,14 +111,14 @@ CCDAudioPlayerDelegate
     [self.menuList addObject:menuDic];
     
     menuDic = @{
-        @"menu_id": @(CCDAudioTestMenuTypeWebRTCNosieIn),
-        @"content": @"录制 降噪测试 WebRTC"
+        @"menu_id": @(CCDAudioTestMenuTypePCMEncoder),
+        @"content": @"录制 PCM"
     }.mutableCopy;
     [self.menuList addObject:menuDic];
     
     menuDic = @{
-        @"menu_id": @(CCDAudioTestMenuTypeWebRTCNosieOut),
-        @"content": @"播放 降噪测试 WebRTC"
+        @"menu_id": @(CCDAudioTestMenuTypePCMDecoder),
+        @"content": @"播放 PCM"
     }.mutableCopy;
     [self.menuList addObject:menuDic];
     
@@ -141,6 +143,18 @@ CCDAudioPlayerDelegate
     menuDic = @{
         @"menu_id": @(CCDAudioTestMenuTypeMP3Decoder),
         @"content": @"MP3 -> PCM 解码"
+    }.mutableCopy;
+    [self.menuList addObject:menuDic];
+    
+    menuDic = @{
+        @"menu_id": @(CCDAudioTestMenuTypeWebRTCNosieIn),
+        @"content": @"录制 降噪测试 WebRTC"
+    }.mutableCopy;
+    [self.menuList addObject:menuDic];
+    
+    menuDic = @{
+        @"menu_id": @(CCDAudioTestMenuTypeWebRTCNosieOut),
+        @"content": @"播放 降噪测试 WebRTC"
     }.mutableCopy;
     [self.menuList addObject:menuDic];
 }
@@ -193,6 +207,12 @@ CCDAudioPlayerDelegate
             break;
         case CCDAudioTestMenuTypeWebRTCNosieOut:
             [self doPlayerWebRTCNoiseTest];
+            break;
+        case CCDAudioTestMenuTypePCMEncoder:
+            [self doPCMRecordAction];
+            break;
+        case CCDAudioTestMenuTypePCMDecoder:
+            [self doPCMPlayAction];
             break;
         case CCDAudioTestMenuTypeAACEncoder:
             [self doAACRecordAction];
@@ -260,7 +280,20 @@ CCDAudioPlayerDelegate
 #pragma mark - MP3
 
 - (void)doMP3RecordAction
-{}
+{
+    if (self.recorder.isRunning) {
+        [self stopRecord];
+        [self.recorderView updateStateInfo:@"AudioUnit AudioRecorder stop"];
+    } else {
+        // mp3
+        CCDAudioRecorderOutputMP3 *output = [[CCDAudioRecorderOutputMP3 alloc] init];
+        output.audioFormat = CCDAudioCreateASBD_PCM16(44100, 1);
+        
+        [self setupAURecorder:output];
+        [self startRecord];
+        [self.recorderView updateStateInfo:@"AudioUnit AudioRecorder start"];
+    }
+}
 
 - (void)doMP3PlayAction
 {
@@ -355,6 +388,69 @@ CCDAudioPlayerDelegate
     }
 }
 
+#pragma mark - PCM
+
+- (void)doPCMRecordAction
+{
+    if (self.recorder.isRunning) {
+        [self stopRecord];
+        [self.recorderView updateStateInfo:@"AudioUnit AudioRecorder stop"];
+    } else {
+        // pcm
+        CCDAudioRecorderOutputPCM *output = [[CCDAudioRecorderOutputPCM alloc] init];
+        output.audioFormat = CCDAudioCreateASBD_PCM16(44100, 1);
+        
+        [self setupAURecorder:output];
+        [self startRecord];
+        [self.recorderView updateStateInfo:@"AudioUnit AudioRecorder start"];
+    }
+}
+
+- (void)doPCMPlayAction
+{
+    if (self.player.isRunning) {
+        [self.player stop];
+        [self.recorderView updateStateInfo:@"player stop"];
+    } else {
+        
+        //ffplay -i /Users/shinianzhiqian/Desktop/pig/Audio/Example/Example/Resources/china-x.pcm -f s16le -ac 1 -ar 44100
+        NSURL *audioURL = [[NSBundle mainBundle] URLForResource:@"china-x" withExtension:@"pcm"];//44100
+        NSInteger sampleRate = 44100;
+        
+        if (self.filePath.length > 0) {
+            audioURL = [NSURL fileURLWithPath:self.filePath];
+        }
+        
+        NSString *ext = audioURL.pathExtension;
+        id<CCDAudioPlayerInput> audioInput = nil;
+        if ([ext isEqualToString:@"pcm"]) {
+            CCDAudioPlayerInputPCM *input = [[CCDAudioPlayerInputPCM alloc] initWithURL:audioURL];
+            input.audioFormat = CCDAudioCreateASBD_PCM16(sampleRate, 1);
+            audioInput = input;
+            
+            CCDAUAudioPlayer *player = [[CCDAUAudioPlayer alloc] init];
+            player.numberOfLoops = 2;
+            @weakify(self);
+            player.viewer = ^(AudioBufferList * _Nullable audioBufferList, NSInteger size) {
+                @strongify(self);
+                AudioStreamBasicDescription audioFormat = self.player.audioInput.audioFormat;
+                [self updateSpectra:audioBufferList bufferSize:size audioFromat:audioFormat];
+            };
+            self.player = player;
+        }
+        
+        self.player.delegate = self;
+        self.player.audioInput = audioInput;
+        if (![self.player prepare]) {
+            CCDAudioLogE(@"player prepare failed");
+            [self.recorderView updateStateInfo:@"player prepare failed"];
+            return;
+        }
+        [self.player play];
+        [self.recorderView updateStateInfo:@"player start"];
+    }
+}
+
 #pragma mark - 降噪测试
 
 - (void)doPlayerWebRTCNoiseTest
@@ -412,7 +508,8 @@ CCDAudioPlayerDelegate
         [self.recorderView updateStateInfo:@"AudioUnit AudioRecorder stop"];
     } else {
         // pcm
-        CCDTestNoiseProcessor *output = [[CCDTestNoiseProcessor alloc] initWithSampleRate:16000];
+        CCDTestNoiseProcessor *output = [[CCDTestNoiseProcessor alloc] init];
+        output.audioFormat = CCDAudioCreateASBD_PCM16(16000, 1);
         [self setupAURecorder:output];
         [self startRecord];
         [self.recorderView updateStateInfo:@"AudioUnit AudioRecorder start"];
@@ -487,13 +584,13 @@ CCDAudioPlayerDelegate
         [self.recorderView updateStateInfo:@"AudioUnit AudioRecorder stop"];
     } else {
         // pcm
-//        CCDAudioRecorderOutputPCM *output = [[CCDAudioRecorderOutputPCM alloc] init];
-//        output.audioFormat = [self pcmAudioFormat:44100];
+        CCDAudioRecorderOutputPCM *output = [[CCDAudioRecorderOutputPCM alloc] init];
         // mp3
 //        CCDAudioRecorderOutputMP3 *output = [[CCDAudioRecorderOutputMP3 alloc] init];
 //        [output setupAudioFormat:44100];
         // m4a
-        CCDAudioRecorderOutputM4A *output = [[CCDAudioRecorderOutputM4A alloc] init];
+//        CCDAudioRecorderOutputM4A *output = [[CCDAudioRecorderOutputM4A alloc] init];
+        output.audioFormat = CCDAudioCreateASBD_PCM16(44100, 1);
         
         [self setupAURecorder:output];
         [self startRecord];

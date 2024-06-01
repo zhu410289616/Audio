@@ -63,7 +63,7 @@
         
         [_spectrumView mas_remakeConstraints:^(MASConstraintMaker *make) {
             make.leading.trailing.equalTo(self);
-            make.bottom.equalTo(_waveView.mas_top).offset(0);
+            make.bottom.equalTo(self).offset(0);
             make.height.equalTo(@(100));
         }];
         
