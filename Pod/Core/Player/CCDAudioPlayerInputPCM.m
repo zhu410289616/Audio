@@ -49,7 +49,7 @@
     [self.inputStream close];
 }
 
-- (void)input:(CCDAudioUnitPlayCallback)callback bufferSize:(NSInteger)bufferSize
+- (void)input:(CCDAudioBufferListCallback)callback bufferSize:(NSInteger)bufferSize
 {
     void *readBuffer = malloc(bufferSize);
     NSInteger readSize = [self.inputStream read:readBuffer maxLength:bufferSize];

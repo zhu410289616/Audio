@@ -60,7 +60,7 @@
     [self.decoder cleanup];
 }
 
-- (void)input:(CCDAudioUnitPlayCallback)callback bufferSize:(NSInteger)bufferSize
+- (void)input:(CCDAudioBufferListCallback)callback bufferSize:(NSInteger)bufferSize
 {
     
 }

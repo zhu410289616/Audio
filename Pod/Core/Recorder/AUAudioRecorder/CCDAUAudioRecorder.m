@@ -32,7 +32,9 @@ static OSStatus CCDAURecordCallback(void *                       inRefCon,
                                     AudioBufferList * __nullable ioData)
 {
     CCDAUAudioRecorder *recorder = (__bridge CCDAUAudioRecorder *)(inRefCon);
-    NSInteger channels = recorder.audioOutput.audioFormat.mChannelsPerFrame;
+    id<CCDAudioRecorderDataOutput> audioOutput = recorder.audioOutput;
+    NSInteger channels = audioOutput.audioFormat.mChannelsPerFrame;
+    NSInteger bytesPerFrame = audioOutput.audioFormat.mBytesPerFrame;
     static UInt32 constBufferSize = 5000;
     
     AudioBufferList bufferList = {0};
@@ -54,23 +56,34 @@ static OSStatus CCDAURecordCallback(void *                       inRefCon,
         return status;
     }
     
-    //录音完成，可以对音频数据进行处理了，保存下来或者计算录音的分贝数等等
-    //如果你需要计算录音时的音量，显示录音动画，这里就可以通过bufferList->mBuffers[0].mData计算得出
+    /// 录音完成，可以对音频数据进行处理了，保存下来或者计算录音的分贝数等等
+    /// 如果你需要计算录音时的音量，显示录音动画，
+    /// 这里就可以通过bufferList->mBuffers[0].mData计算得出；
+    /// 首先检查bufferList是否有数据，并计算总的平方值。
+    /// 然后，我们使用公式计算均方根（RMS），将其转换为功率，
+    /// 并应用A权重（A-weighting），最后将结果转换为分贝（dB）
     Byte *bufferData = bufferList.mBuffers[0].mData;
     UInt32 bufferSize = bufferList.mBuffers[0].mDataByteSize;
+    NSInteger channelCount = bufferList.mNumberBuffers;
+    NSInteger sampleCount = bufferSize / bytesPerFrame;
     //因为我们的采样位数是16个字节，也就是需要用SInt16来存储
     SInt16 *shortBuffer = (SInt16 *)bufferData;
-    NSInteger pcmAllLen = 0;
+    double sumSquared = 0;
     //因为原数据bufferData是8位存储的，但是我们采样是16位，所以这里长度要减半
-    for(int i=0;i<bufferSize/2;++i) {
-        NSInteger tmp = shortBuffer[i];
-        pcmAllLen += tmp*tmp;
+    for(int i=0; i<sampleCount; i++) {
+        NSInteger sample = shortBuffer[i];
+        sumSquared += sample * sample;
     }
-//    CGFloat db = 10 * log10((CGFloat)pcmAllLen / bufferSize);
-    //这里db就是我们计算出来的，当前这段音频的通过声压计算分贝算出来的，最大是90.3分贝
-    recorder.db = log10((CGFloat)pcmAllLen / bufferSize);
+    
+    double rms = sqrt(sumSquared / sampleCount);
+    double power = rms * rms * channelCount; // Calculate power
+    double refPower = 1.0; // Reference power, 1 watt for A-weighting
+    double weight = 1.0 / 10.0; // A-weighting coefficient
+    double aWeightedPower = weight * log10(refPower + pow(10, power / 10.0));
+    recorder.db = 20 * aWeightedPower;
     
     [recorder.audioOutput write:&bufferList];
+    !recorder.viewer ?: recorder.viewer(&bufferList, bufferSize);
     
     for (NSInteger i=0; i<channels; i++) {
         if (bufferList.mBuffers[0].mData) {

@@ -55,6 +55,9 @@ typedef struct CCDAudioQueueInputData {
 } CCDAudioQueueInputData;
 typedef CCDAudioQueueInputData *CCDAudioQueueInputDataRef;
 
+
+typedef void(^CCDAudioBufferListCallback)(AudioBufferList * _Nullable audioBufferList, NSInteger size);
+
 #pragma mark - log
 
 #ifdef DEBUG

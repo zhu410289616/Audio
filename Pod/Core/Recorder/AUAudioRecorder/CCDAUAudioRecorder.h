@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface CCDAUAudioRecorder : NSObject <CCDAudioRecorderProvider>
 
 @property (nonatomic, strong) id<CCDAudioRecorderDataOutput> audioOutput;
+@property (nonatomic,   copy) CCDAudioBufferListCallback viewer;
 
 @end
 

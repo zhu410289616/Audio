@@ -82,7 +82,7 @@
     [self.decoder cleanup];
 }
 
-- (void)input:(CCDAudioUnitPlayCallback)callback bufferSize:(NSInteger)bufferSize
+- (void)input:(CCDAudioBufferListCallback)callback bufferSize:(NSInteger)bufferSize
 {
     if (self.currentBufferLength < bufferSize) {
         NSData *rawData = [self.reader readData];

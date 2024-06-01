@@ -335,9 +335,10 @@ CCDAudioPlayerDelegate
             CCDAUAudioPlayer *player = [[CCDAUAudioPlayer alloc] init];
             player.numberOfLoops = 2;
             @weakify(self);
-            player.viewer = ^(AudioBufferList * _Nullable inAudioBufferList, NSInteger inSize) {
+            player.viewer = ^(AudioBufferList * _Nullable audioBufferList, NSInteger size) {
                 @strongify(self);
-                [self updateSpectra:inAudioBufferList bufferSize:inSize];
+                AudioStreamBasicDescription audioFormat = self.player.audioInput.audioFormat;
+                [self updateSpectra:audioBufferList bufferSize:size audioFromat:audioFormat];
             };
             self.player = player;
         }
@@ -451,9 +452,10 @@ CCDAudioPlayerDelegate
             CCDAUAudioPlayer *player = [[CCDAUAudioPlayer alloc] init];
             player.numberOfLoops = 2;
             @weakify(self);
-            player.viewer = ^(AudioBufferList * _Nullable inAudioBufferList, NSInteger inSize) {
+            player.viewer = ^(AudioBufferList * _Nullable audioBufferList, NSInteger size) {
                 @strongify(self);
-                [self updateSpectra:inAudioBufferList bufferSize:inSize];
+                AudioStreamBasicDescription audioFormat = self.player.audioInput.audioFormat;
+                [self updateSpectra:audioBufferList bufferSize:size audioFromat:audioFormat];
             };
             self.player = player;
         } else if ([ext isEqualToString:@"mp3"]
@@ -562,7 +564,7 @@ CCDAudioPlayerDelegate
 
 #pragma mark - spectrum
 
-- (void)updateSpectra:(AudioBufferList *)audioBufferList bufferSize:(NSInteger)bufferSize
+- (void)updateSpectra:(AudioBufferList *)audioBufferList bufferSize:(NSInteger)bufferSize audioFromat:(AudioStreamBasicDescription)audioFormat
 {
     double begintTime = CFAbsoluteTimeGetCurrent();
     if (begintTime - self.lastRenderTime < 0.1) {
@@ -570,7 +572,6 @@ CCDAudioPlayerDelegate
     }
     self.lastRenderTime = begintTime;
     
-    AudioStreamBasicDescription audioFormat = self.player.audioInput.audioFormat;
     NSInteger bytesPerSample = audioFormat.mBytesPerFrame;
     NSInteger sampleRate = audioFormat.mSampleRate;//44100
     
@@ -690,14 +691,21 @@ CCDAudioPlayerDelegate
     [self stopRecord];
     
     //AURecoder
-    self.recorder = [[CCDAUAudioRecorder alloc] init];
+    CCDAUAudioRecorder *recorder = [[CCDAUAudioRecorder alloc] init];
+    @weakify(self);
+    recorder.viewer = ^(AudioBufferList * _Nullable audioBufferList, NSInteger size) {
+        @strongify(self);
+        AudioStreamBasicDescription audioFormat = self.recorder.audioOutput.audioFormat;
+        [self updateSpectra:audioBufferList bufferSize:size audioFromat:audioFormat];
+    };
+    self.recorder = recorder;
     self.recorder.delegate = self;
     self.recorder.audioOutput = audioOutput;
 }
 
 - (void)startRecord
 {
-    [self startMeterTimer];
+//    [self startMeterTimer];
     [self.recorder prepare];
     [self.recorder start];
 }
