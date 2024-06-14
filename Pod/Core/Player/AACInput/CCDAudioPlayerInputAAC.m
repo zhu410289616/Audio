@@ -7,7 +7,6 @@
 
 #import "CCDAudioPlayerInputAAC.h"
 #import "CCDAudioAACFileReader.h"
-#import "CCDAudioAACDecoder.h"
 #import "CCDAudioRawDecoder.h"
 #import "CCDAudioUtil.h"
 

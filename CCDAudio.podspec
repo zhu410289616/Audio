@@ -44,6 +44,20 @@ Pod::Spec.new do |spec|
     cs.libraries = "c++"
   end
   
+  spec.subspec "AVAudioPlayer" do |cs|
+    cs.source_files = "Pod/AVAudioPlayer/**/*.{h,m,mm}"
+    cs.dependency "libextobjc/EXTScope"
+    cs.frameworks = "AudioToolbox"
+    cs.libraries = "c++"
+  end
+  
+  spec.subspec "MP3" do |cs|
+    cs.source_files = "Pod/MP3/**/*.{h,m,mm}"
+    cs.dependency "libextobjc/EXTScope"
+    cs.frameworks = "AudioToolbox"
+    cs.libraries = "c++"
+  end
+  
   spec.subspec "UIKit" do |cs|
     cs.source_files = "Pod/UIKit/**/*.{h,m,mm}"
     cs.dependency "MarqueeLabel-ObjC"

@@ -14,15 +14,21 @@ PODS:
   - AFNetworking/Serialization (4.0.1)
   - AFNetworking/UIKit (4.0.1):
     - AFNetworking/NSURLSession
+  - CCDAudio/AVAudioPlayer (0.0.1):
+    - libextobjc/EXTScope
   - CCDAudio/Core (0.0.1):
     - libextobjc/EXTScope
   - CCDAudio/Effect (0.0.1)
+  - CCDAudio/MP3 (0.0.1):
+    - libextobjc/EXTScope
   - CCDAudio/UIKit (0.0.1):
     - MarqueeLabel-ObjC
   - CCDBucket/Core (0.0.2):
     - CocoaLumberjack
   - CCDBucket/DamServer (0.0.2):
     - GCDWebSocket
+  - CCDDelegateProxy/Core (0.0.1)
+  - CCDDelegateProxy/URLSessionProxy (0.0.1)
   - CocoaLumberjack (3.7.4):
     - CocoaLumberjack/Core (= 3.7.4)
   - CocoaLumberjack/Core (3.7.4)
@@ -73,11 +79,15 @@ PODS:
 
 DEPENDENCIES:
   - AFNetworking (~> 4.0.1)
+  - CCDAudio/AVAudioPlayer (from `../CCDAudio.podspec`)
   - CCDAudio/Core (from `../CCDAudio.podspec`)
   - CCDAudio/Effect (from `../CCDAudio.podspec`)
+  - CCDAudio/MP3 (from `../CCDAudio.podspec`)
   - CCDAudio/UIKit (from `../CCDAudio.podspec`)
   - CCDBucket/Core (from `https://github.com/zhu410289616/Bucket.git`, tag `202307242341`)
   - CCDBucket/DamServer (from `https://github.com/zhu410289616/Bucket.git`, tag `202307242341`)
+  - CCDDelegateProxy/Core (from `../../DelegateProxy/CCDDelegateProxy.podspec`)
+  - CCDDelegateProxy/URLSessionProxy (from `../../DelegateProxy/CCDDelegateProxy.podspec`)
   - CocoaLumberjack (~> 3.7.4)
   - libextobjc (~> 0.6)
   - librtmp-iOS (from `https://github.com/zhu410289616/librtmp-iOS.git`)
@@ -101,6 +111,8 @@ EXTERNAL SOURCES:
   CCDBucket:
     :git: https://github.com/zhu410289616/Bucket.git
     :tag: '202307242341'
+  CCDDelegateProxy:
+    :path: "../../DelegateProxy/CCDDelegateProxy.podspec"
   librtmp-iOS:
     :git: https://github.com/zhu410289616/librtmp-iOS.git
 
@@ -114,8 +126,9 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   AFNetworking: 3bd23d814e976cd148d7d44c3ab78017b744cd58
-  CCDAudio: 6d74667137d8f915262cebf0829ec00d79670c57
+  CCDAudio: 57410b8ea1ecf3a64276bd19bb6f8dd72cce3839
   CCDBucket: 59258c899b0e0183e2a1769d5389b6242fb7ea3c
+  CCDDelegateProxy: b8d807fe2daf3d55b40ed34d72e784b0795a3ea4
   CocoaLumberjack: 543c79c114dadc3b1aba95641d8738b06b05b646
   GCDWebServer: 2c156a56c8226e2d5c0c3f208a3621ccffbe3ce4
   GCDWebSocket: 584a6a7421ffc2d8a970553f2cb311dfef8ccd54
@@ -125,6 +138,6 @@ SPEC CHECKSUMS:
   Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
   SCSiriWaveformView: 15b9dd6f94c7536e2032b34a35c6ff74d38c7411
 
-PODFILE CHECKSUM: 8b37e41ee0e27627e3468da0db0105e2c20bd445
+PODFILE CHECKSUM: c046ca95241aed5b577bb802d8653f9831884c52
 
 COCOAPODS: 1.11.3
