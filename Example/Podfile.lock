@@ -14,7 +14,7 @@ PODS:
   - AFNetworking/Serialization (4.0.1)
   - AFNetworking/UIKit (4.0.1):
     - AFNetworking/NSURLSession
-  - CCDAudio/AVAudioPlayer (0.0.1):
+  - CCDAudio/AMR (0.0.1):
     - libextobjc/EXTScope
   - CCDAudio/Core (0.0.1):
     - libextobjc/EXTScope
@@ -79,7 +79,7 @@ PODS:
 
 DEPENDENCIES:
   - AFNetworking (~> 4.0.1)
-  - CCDAudio/AVAudioPlayer (from `../CCDAudio.podspec`)
+  - CCDAudio/AMR (from `../CCDAudio.podspec`)
   - CCDAudio/Core (from `../CCDAudio.podspec`)
   - CCDAudio/Effect (from `../CCDAudio.podspec`)
   - CCDAudio/MP3 (from `../CCDAudio.podspec`)
@@ -126,7 +126,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   AFNetworking: 3bd23d814e976cd148d7d44c3ab78017b744cd58
-  CCDAudio: 57410b8ea1ecf3a64276bd19bb6f8dd72cce3839
+  CCDAudio: 6c2f38cfb5fc31990275a61a761456d61156d7c8
   CCDBucket: 59258c899b0e0183e2a1769d5389b6242fb7ea3c
   CCDDelegateProxy: b8d807fe2daf3d55b40ed34d72e784b0795a3ea4
   CocoaLumberjack: 543c79c114dadc3b1aba95641d8738b06b05b646
@@ -138,6 +138,6 @@ SPEC CHECKSUMS:
   Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
   SCSiriWaveformView: 15b9dd6f94c7536e2032b34a35c6ff74d38c7411
 
-PODFILE CHECKSUM: c046ca95241aed5b577bb802d8653f9831884c52
+PODFILE CHECKSUM: 889a5abd5291951248b33e517b4611bc1e21efdf
 
 COCOAPODS: 1.11.3

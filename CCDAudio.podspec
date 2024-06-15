@@ -38,14 +38,19 @@ Pod::Spec.new do |spec|
 
   spec.subspec "Core" do |cs|
     cs.source_files = "Pod/Core/**/*.{h,m,mm}"
-    cs.vendored_libraries = 'Pod/Core/Frameworks/**/*.a'
     cs.dependency "libextobjc/EXTScope"
     cs.frameworks = "AudioToolbox"
     cs.libraries = "c++"
   end
   
-  spec.subspec "AVAudioPlayer" do |cs|
-    cs.source_files = "Pod/AVAudioPlayer/**/*.{h,m,mm}"
+  spec.subspec "Effect" do |cs|
+    cs.source_files = "Pod/Effect/**/*.{h,c,m,mm}"
+    cs.libraries = "c"
+  end
+  
+  spec.subspec "AMR" do |cs|
+    cs.source_files = "Pod/AMR/**/*.{h,m,mm}"
+    cs.vendored_libraries = 'Pod/AMR/Frameworks/**/*.a'
     cs.dependency "libextobjc/EXTScope"
     cs.frameworks = "AudioToolbox"
     cs.libraries = "c++"
@@ -53,6 +58,7 @@ Pod::Spec.new do |spec|
   
   spec.subspec "MP3" do |cs|
     cs.source_files = "Pod/MP3/**/*.{h,m,mm}"
+    cs.vendored_libraries = 'Pod/MP3/Frameworks/**/*.a'
     cs.dependency "libextobjc/EXTScope"
     cs.frameworks = "AudioToolbox"
     cs.libraries = "c++"
@@ -61,11 +67,6 @@ Pod::Spec.new do |spec|
   spec.subspec "UIKit" do |cs|
     cs.source_files = "Pod/UIKit/**/*.{h,m,mm}"
     cs.dependency "MarqueeLabel-ObjC"
-  end
-  
-  spec.subspec "Effect" do |cs|
-    cs.source_files = "Pod/Effect/**/*.{h,c,m,mm}"
-    cs.libraries = "c"
   end
   
 #  spec.subspec "Controller" do |cs|

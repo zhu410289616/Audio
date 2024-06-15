@@ -7,7 +7,7 @@ target 'Example' do
   pod 'librtmp-iOS', :git => 'https://github.com/zhu410289616/librtmp-iOS.git'
   pod 'AFNetworking', '~> 4.0.1'
   pod 'CocoaLumberjack', '~> 3.7.4'
-  pod 'CCDAudio', :path => '../CCDAudio.podspec', :subspecs => ['Core', 'AVAudioPlayer', 'MP3', 'UIKit', 'Effect']
+  pod 'CCDAudio', :path => '../CCDAudio.podspec', :subspecs => ['Core', 'AMR', 'MP3', 'UIKit', 'Effect']
   ### 日志
   pod 'CCDBucket', :git => 'https://github.com/zhu410289616/Bucket.git', :tag => '202307242341', :subspecs => ['Core', 'DamServer']
   pod 'CCDDelegateProxy', :path => '../../DelegateProxy/CCDDelegateProxy.podspec', :subspecs => ['Core', 'URLSessionProxy']
